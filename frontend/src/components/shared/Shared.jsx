@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 export function AppLink({ to, children, className = '', onNavigate, ...props }) {
   return <a href={to} className={className} onClick={(event) => {
@@ -49,5 +50,33 @@ export function PageHero({ onNavigate, title, eyebrow, description, crumbs }) {
 
 export function CtaBand({ onNavigate, title, eyebrow }) {
   return <section className="tracking-band"><div className="section-shell tracking-inner"><div><Eyebrow light>{eyebrow}</Eyebrow><h2>{title}</h2></div><ButtonLink to="/contact" onNavigate={onNavigate}>Ask our team</ButtonLink></div></section>
+}
+
+export function ConfirmDialog({ open, title, message, confirmLabel = 'Confirm', busy = false, onCancel, onConfirm }) {
+  const cancelButton = useRef(null)
+  useEffect(() => {
+    if (!open) return undefined
+    const previousFocus = document.activeElement
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    cancelButton.current?.focus()
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape' && !busy) onCancel()
+      if (event.key === 'Tab') {
+        event.preventDefault()
+        const focusable = document.querySelectorAll('.confirm-dialog button:not(:disabled)')
+        const index = [...focusable].indexOf(document.activeElement)
+        focusable[(index + (event.shiftKey ? focusable.length - 1 : 1)) % focusable.length]?.focus()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      document.removeEventListener('keydown', handleKeyDown)
+      previousFocus?.focus?.()
+    }
+  }, [open, busy, onCancel])
+  if (!open) return null
+  return createPortal(<div className="confirm-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) onCancel() }}><section className="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirm-dialog-title" aria-describedby="confirm-dialog-message"><span className="confirm-dialog-icon" aria-hidden="true">!</span><div className="confirm-dialog-eyebrow">PLEASE CONFIRM</div><h2 id="confirm-dialog-title">{title}</h2><p id="confirm-dialog-message">{message}</p><div className="confirm-dialog-actions"><button ref={cancelButton} type="button" className="admin-button secondary" onClick={onCancel} disabled={busy}>Cancel</button><button type="button" className="admin-button danger" onClick={onConfirm} disabled={busy}>{busy ? 'Deleting…' : confirmLabel}</button></div></section></div>, document.body)
 }
 

@@ -8,7 +8,7 @@ export function AdminGate({ children, onNavigate, pathname }) {
     if (!authStore.getToken()) { onNavigate('/gaa-control-7f3c9a/login'); return }
     getProfile().then((user) => setState({ loading: false, user }))
       .catch(() => { authStore.clear(); onNavigate('/gaa-control-7f3c9a/login') })
-  }, []) // session check runs once when entering an admin page.
+  }, [onNavigate])
   if (state.loading || !state.user) return <main className="admin-loading"><span className="loading dark"/> Checking admin session…</main>
   return <AdminLayout user={state.user} onNavigate={onNavigate} pathname={pathname}>{children}</AdminLayout>
 }
@@ -25,7 +25,18 @@ export function AdminTitle({ eyebrow='ADMINISTRATION', title, description, actio
 
 export function AdminNotice({ notice }) {
   if (!notice?.text) return null
-  return <div className={`admin-notice ${notice.type || 'info'}`} role="status">{notice.text}</div>
+  return <AdminToast key={`${notice.type || 'info'}-${notice.text}`} notice={notice}/>
+}
+
+function AdminToast({ notice }) {
+  const [visible, setVisible] = useState(true)
+  useEffect(() => {
+    const timer = window.setTimeout(() => setVisible(false), 6500)
+    return () => window.clearTimeout(timer)
+  }, [])
+  if (!visible) return null
+  const tone = notice.type || 'info'
+  return <aside className={`admin-toast ${tone}`} role={tone === 'error' ? 'alert' : 'status'}><span className="admin-toast-icon" aria-hidden="true">{tone === 'error' ? '!' : tone === 'success' ? '✓' : 'i'}</span><div><strong>{tone === 'error' ? 'Something needs attention' : tone === 'success' ? 'All set' : 'Update'}</strong><p>{notice.text}</p></div><button type="button" aria-label="Dismiss notification" onClick={() => setVisible(false)}>×</button></aside>
 }
 
 export function AdminField({ label, className='', as, children, ...inputProps }) {
