@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { AppLink } from '../../../components/shared/Shared'
-import { registerAdmin } from '../../../api/gaa-control-7f3c9a/gaa-control-7f3c9a'
+import { registerAdmin } from '../../../api/admin/admin'
 
 export default function Register({ onNavigate }) {
   const [notice, setNotice] = useState(null)

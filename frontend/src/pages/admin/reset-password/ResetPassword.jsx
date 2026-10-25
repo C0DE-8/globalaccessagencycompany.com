@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { AppLink } from '../../../components/shared/Shared'
-import { resetAdminPassword } from '../../../api/gaa-control-7f3c9a/gaa-control-7f3c9a'
+import { resetAdminPassword } from '../../../api/admin/admin'
 
 export default function ResetPassword({ onNavigate }) {
   const [notice, setNotice] = useState(null)

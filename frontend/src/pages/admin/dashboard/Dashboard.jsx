@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { AppLink } from '../../../components/shared/Shared'
-import { AdminNotice, AdminTitle } from '../../../components/gaa-control-7f3c9a/AdminLayout'
-import { listPackages } from '../../../api/gaa-control-7f3c9a/gaa-control-7f3c9a'
+import { AdminNotice, AdminTitle } from '../../../components/admin/AdminLayout'
+import { listPackages } from '../../../api/admin/admin'
 
 export default function Dashboard({ onNavigate }) {
   const [packages, setPackages] = useState([])

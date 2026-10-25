@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { AppLink } from '../../../components/shared/Shared'
-import { login } from '../../../api/gaa-control-7f3c9a/gaa-control-7f3c9a'
+import { login } from '../../../api/admin/admin'
 
 export default function Login({ onNavigate }) {
   const [notice, setNotice] = useState('')

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { AppLink } from '../shared/Shared'
-import { authStore, getProfile } from '../../api/gaa-control-7f3c9a/gaa-control-7f3c9a'
+import { authStore, getProfile } from '../../api/admin/admin'
 
 export function AdminGate({ children, onNavigate, pathname }) {
   const [state, setState] = useState({ loading: true, user: null })

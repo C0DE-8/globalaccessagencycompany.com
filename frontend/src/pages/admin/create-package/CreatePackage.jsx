@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { AppLink } from '../../../components/shared/Shared'
-import { AdminField, AdminNotice, AdminTitle } from '../../../components/gaa-control-7f3c9a/AdminLayout'
-import { createPackage } from '../../../api/gaa-control-7f3c9a/gaa-control-7f3c9a'
+import { AdminField, AdminNotice, AdminTitle } from '../../../components/admin/AdminLayout'
+import { createPackage } from '../../../api/admin/admin'
 
 export default function CreatePackage({ onNavigate }) {
   const [notice,setNotice]=useState(null); const [loading,setLoading]=useState(false); const [created,setCreated]=useState(null)

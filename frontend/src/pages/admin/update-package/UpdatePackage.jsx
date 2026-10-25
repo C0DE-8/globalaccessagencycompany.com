@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { AdminField, AdminNotice, AdminTitle } from '../../../components/gaa-control-7f3c9a/AdminLayout'
-import { addPackageUpdate, getPackage, getPackageUpdates, listPackages, updatePackage } from '../../../api/gaa-control-7f3c9a/gaa-control-7f3c9a'
+import { AdminField, AdminNotice, AdminTitle } from '../../../components/admin/AdminLayout'
+import { addPackageUpdate, getPackage, getPackageUpdates, listPackages, updatePackage } from '../../../api/admin/admin'
 
 const fields = [['sender_name','Sender name'],['sender_address','Sender address'],['recipient_name','Recipient name'],['recipient_address','Recipient address'],['location','Current location'],['delivery_charge','Delivery charge'],['delivery_date','Delivery date'],['shipped_out_date','Shipped out date'],['status','Status'],['package_information','Package information']]
 

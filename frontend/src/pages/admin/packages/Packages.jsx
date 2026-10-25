@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AppLink } from '../../../components/shared/Shared'
-import { AdminNotice, AdminTitle } from '../../../components/gaa-control-7f3c9a/AdminLayout'
+import { AdminNotice, AdminTitle } from '../../../components/admin/AdminLayout'
 import { PackageTable } from '../dashboard/Dashboard'
-import { deletePackage, listPackages } from '../../../api/gaa-control-7f3c9a/gaa-control-7f3c9a'
+import { deletePackage, listPackages } from '../../../api/admin/admin'
 
 export default function Packages({ onNavigate }) {
   const [packages,setPackages]=useState([]); const [query,setQuery]=useState(''); const [loading,setLoading]=useState(true); const [notice,setNotice]=useState(null)

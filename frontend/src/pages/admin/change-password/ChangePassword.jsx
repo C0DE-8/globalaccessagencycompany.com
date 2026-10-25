@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { AdminField, AdminNotice, AdminTitle } from '../../../components/gaa-control-7f3c9a/AdminLayout'
-import { changeAdminPassword } from '../../../api/gaa-control-7f3c9a/gaa-control-7f3c9a'
+import { AdminField, AdminNotice, AdminTitle } from '../../../components/admin/AdminLayout'
+import { changeAdminPassword } from '../../../api/admin/admin'
 
 export default function ChangePassword() {
   const [notice,setNotice]=useState(null);const [loading,setLoading]=useState(false)
