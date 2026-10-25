@@ -8,8 +8,12 @@ export function AppLink({ to, children, className = '', onNavigate, ...props }) 
   }} {...props}>{children}</a>
 }
 
+export function BrandSymbol({ className = '' }) {
+  return <svg className={className} viewBox="0 0 58 42" role="img" aria-label="Blue globe and package logo" fill="none" xmlns="http://www.w3.org/2000/svg"><g stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="21" r="15"/><ellipse cx="18" cy="21" rx="7" ry="15"/><path d="M4 17h28M4 25h28M6 12h24M6 30h24"/><path d="m37 15 9-5 9 5-9 5-9-5Z"/><path d="M37 15v15l9 5 9-5V15M46 20v15M41 18l9-5"/></g></svg>
+}
+
 export function Brand({ onNavigate, footer = false }) {
-  return <AppLink to="/" onNavigate={onNavigate} className={`brand ${footer ? 'brand-footer' : ''}`} aria-label="Global Access Agency Company home"><span className="brand-mark">G<span>A</span></span><span>GLOBAL ACCESS<small>AGENCY COMPANY</small></span></AppLink>
+  return <AppLink to="/" onNavigate={onNavigate} className={`brand ${footer ? 'brand-footer' : ''}`} aria-label="Global Access Agency Company home"><span className="brand-mark"><BrandSymbol/></span><span>GLOBAL ACCESS<small>AGENCY COMPANY</small></span></AppLink>
 }
 
 export function Header({ route, onNavigate }) {
