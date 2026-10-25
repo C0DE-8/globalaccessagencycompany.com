@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>View Packages | Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+
+<body>
+  <div class="toastWrap" id="toastWrap"></div>
+
+  <div id="preloader"><div class="spinner"></div></div>
+
+  <header class="header">
+    <a href="dashboard.html" class="logo">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16.46 8.9L7.54 1.1A2 2 0 0 0 4 2.8v18.4a2 2 0 0 0 3.54 1.7l8.92-7.8a2 2 0 0 0 0-2.6Z"/>
+        <path d="M22 12H12"/>
+      </svg>
+      Admin
+    </a>
+
+    <div class="headerRight">
+      <div class="pill" id="adminPill">
+        Admin: <strong id="adminEmail">—</strong> • Role: <strong id="adminRole">—</strong>
+      </div>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="wrap">
+      <div class="topRow">
+        <div>
+          <h1>All Packages</h1>
+          <p class="sub">Search by <strong>Sender Name</strong> or <strong>Recipient Name</strong>. Copy tracker # or print a receipt-style invoice.</p>
+        </div>
+        <button class="backBtn" id="backBtn">← Back</button>
+      </div>
+
+      <div class="notice" id="notice"></div>
+
+      <div class="toolbar">
+        <div class="searchWrap">
+          <input id="searchInput" placeholder="Search by Sender or Recipient name..." autocomplete="off" />
+          <svg class="searchIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.3-4.3"></path>
+          </svg>
+        </div>
+        <button class="btnGhost" id="refreshBtn">Refresh</button>
+      </div>
+
+      <div class="grid" id="cardsGrid"></div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    &copy; 2025 Admin. All rights reserved.
+  </footer>
+
+  <!-- Invoice / Receipt Modal -->
+  <div class="modalOverlay" id="invoiceOverlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-label="Invoice">
+      <div class="modalTop">
+        <strong id="invTitle">Invoice</strong>
+        <div class="modalBtns">
+          <button class="btnGhost" id="invCopyBtn">Copy Tracker</button>
+          <button class="btnGhost" id="invPrintBtn">Print</button>
+          <button class="closeX" id="invCloseBtn">Close</button>
+        </div>
+      </div>
+
+      <div class="invoice" id="invoiceContent">
+        <!-- filled by JS -->
+      </div>
+    </div>
+  </div>
+
+  <script src="js/admin-ui.js"></script>
+  <script>
+    const API_BASE = "https://api.veliport24.com";
+
+    let allPackages = [];
+    let filteredPackages = [];
+    let currentInvoicePkg = null;
+
+    // ---------- Toast ----------
+    function toast(type, title, text, ms=2600){
+      const wrap = document.getElementById("toastWrap");
+      const el = document.createElement("div");
+      el.className = `toast ${type || "info"}`;
+
+      const icon = document.createElement("div");
+      icon.className = "tIcon";
+      icon.textContent = type === "ok" ? "✓" : (type === "error" ? "!" : "i");
+
+      const body = document.createElement("div");
+      body.className = "tBody";
+      const t1 = document.createElement("p");
+      t1.className = "tTitle";
+      t1.textContent = title || (type === "error" ? "Error" : "Notice");
+      const t2 = document.createElement("p");
+      t2.className = "tText";
+      t2.textContent = text || "";
+      body.appendChild(t1);
+      body.appendChild(t2);
+
+      const close = document.createElement("button");
+      close.className = "tClose";
+      close.innerHTML = "&times;";
+      close.onclick = () => el.remove();
+
+      el.appendChild(icon);
+      el.appendChild(body);
+      el.appendChild(close);
+
+      wrap.appendChild(el);
+
+      setTimeout(() => { if (el && el.parentNode) el.remove(); }, ms);
+    }
+
+    // ---------- Helpers ----------
+    function showNotice(type, text){
+      const el = document.getElementById("notice");
+      el.className = "notice " + (type || "");
+      el.textContent = text || "";
+      el.style.display = (type ? "block" : "none");
+    }
+
+    function tokenOrRedirect(){
+      const t = localStorage.getItem("token");
+      if (!t) { window.location.href = "index.html"; return null; }
+      return t;
+    }
+
+    function statusBadgeClass(status){
+      const s = String(status || "").toLowerCase();
+      if (s === "delivered") return "delivered";
+      if (s === "active" || s === "shipped") return "active";
+      return "hold";
+    }
+
+    function safeText(v){ return String(v || "").trim(); }
+
+    function escapeHtml(s){
+      return String(s || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    async function copyText(text){
+      try{
+        await navigator.clipboard.writeText(String(text || ""));
+        toast("ok", "Copied", "Tracker number copied.");
+      }catch(e){
+        const ta = document.createElement("textarea");
+        ta.value = String(text || "");
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+        toast("ok", "Copied", "Tracker number copied.");
+      }
+    }
+
+    // ---------- Skeleton Fallback ----------
+    function renderSkeleton(count = 6){
+      const grid = document.getElementById("cardsGrid");
+      if (!grid) return;
+
+      grid.innerHTML = "";
+      grid.className = "skeletonGrid";
+
+      for (let i = 0; i < count; i++){
+        const card = document.createElement("div");
+        card.className = "sCard";
+        card.innerHTML = `
+          <div class="sTop">
+            <div class="shimmer sLine lg w70" style="border-radius:999px;"></div>
+            <div style="height:10px"></div>
+            <div class="shimmer sLine sm w40" style="border-radius:999px;"></div>
+          </div>
+
+          <div class="sBody">
+            <div class="shimmer sLine w85"></div>
+            <div class="shimmer sLine w70"></div>
+            <div class="shimmer sLine w100"></div>
+            <div class="shimmer sLine w55"></div>
+          </div>
+
+          <div class="sActions">
+            <div class="shimmer sLine sm w40" style="border-radius:999px;"></div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <div class="shimmer sLine sm" style="width:110px; border-radius:12px; height:34px;"></div>
+              <div class="shimmer sLine sm" style="width:110px; border-radius:12px; height:34px;"></div>
+              <div class="shimmer sLine sm" style="width:90px; border-radius:12px; height:34px;"></div>
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      }
+    }
+
+    function clearSkeletonGridClass(){
+      const grid = document.getElementById("cardsGrid");
+      if (!grid) return;
+      grid.className = "grid";
+    }
+
+    // ---------- Preloader ----------
+    window.addEventListener("load", () => {
+      const preloader = document.getElementById("preloader");
+      if (preloader) {
+        preloader.classList.add("hidden");
+        setTimeout(() => (preloader.style.display = "none"), 500);
+      }
+    });
+
+    // ---------- Header cache ----------
+    (function loadHeaderCache(){
+      document.getElementById("adminEmail").textContent = localStorage.getItem("adminEmail") || "—";
+      document.getElementById("adminRole").textContent = localStorage.getItem("adminRole") || "—";
+    })();
+
+    // ---------- Nav ----------
+    document.getElementById("backBtn").addEventListener("click", () => {
+      window.location.href = "dashboard.html";
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("adminEmail");
+      localStorage.removeItem("adminRole");
+      window.location.href = "index.html";
+    });
+
+    // ---------- Data load ----------
+    async function fetchPackageById(id){
+      const token = tokenOrRedirect();
+      if (!token) return null;
+
+      const res = await fetch(`${API_BASE}/api/packages/${id}`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || data.error || "Failed to fetch package");
+      return data.package;
+    }
+
+    async function loadPackages(){
+      const token = tokenOrRedirect();
+      if (!token) return;
+
+      showNotice("", "");
+      renderSkeleton(6); // ✅ skeleton fallback while loading
+
+      try{
+        // Step 1: get ids + tracker_number
+        const res = await fetch(`${API_BASE}/api/packages/`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          clearSkeletonGridClass();
+          showNotice("error", data.message || data.error || "Failed to load packages.");
+          toast("error", "Load failed", data.message || "Could not load packages.");
+          return;
+        }
+
+        // Step 2: fetch full records (because list route returns only id + tracker_number)
+        const full = [];
+        for (const item of (data || [])) {
+          try{
+            const pkg = await fetchPackageById(item.id);
+            if (pkg) full.push(pkg);
+          }catch(e){
+            // skip bad row
+          }
+        }
+
+        allPackages = full;
+        clearSkeletonGridClass(); // ✅ restore normal grid
+        applySearch();
+
+        toast("ok", "Loaded", `${allPackages.length} package(s) loaded.`);
+        if (!allPackages.length) showNotice("ok", "No packages yet. Create one first.");
+        else showNotice("", "");
+      }catch(e){
+        clearSkeletonGridClass();
+        showNotice("error", "Network error while loading packages.");
+        toast("error", "Network error", "Could not load packages.");
+      }
+    }
+
+    // ---------- Search ----------
+    function applySearch(){
+      const q = safeText(document.getElementById("searchInput").value).toLowerCase();
+      if (!q){
+        filteredPackages = allPackages.slice();
+      } else {
+        filteredPackages = allPackages.filter(p => {
+          const s = safeText(p.sender_name).toLowerCase();
+          const r = safeText(p.recipient_name).toLowerCase();
+          return s.includes(q) || r.includes(q);
+        });
+      }
+      renderCards();
+    }
+
+    document.getElementById("searchInput").addEventListener("input", applySearch);
+    document.getElementById("refreshBtn").addEventListener("click", loadPackages);
+
+    // ---------- Cards UI ----------
+    function renderCards(){
+      const grid = document.getElementById("cardsGrid");
+      grid.innerHTML = "";
+      grid.className = "grid";
+
+      if (!filteredPackages.length){
+        const empty = document.createElement("div");
+        empty.className = "card";
+        empty.innerHTML = `
+          <div class="cardBody" style="align-items:center; justify-content:center; text-align:center;">
+            <div style="font-weight:1000; font-size:1.05rem;">No packages found</div>
+            <div style="color:var(--text-light); margin-top:6px;">Try another name or refresh.</div>
+          </div>
+        `;
+        grid.appendChild(empty);
+        return;
+      }
+
+      filteredPackages.forEach(pkg => {
+        const status = safeText(pkg.status) || "hold";
+        const badgeClass = statusBadgeClass(status);
+
+        const card = document.createElement("div");
+        card.className = "card";
+
+        card.innerHTML = `
+          <div class="cardTop">
+            <div class="tnRow">
+              <div class="tn">
+                Tracker: <code title="${escapeHtml(pkg.tracker_number)}">${escapeHtml(pkg.tracker_number)}</code>
+              </div>
+              <span class="badge ${badgeClass}">${escapeHtml(status.toUpperCase())}</span>
+            </div>
+          </div>
+
+          <div class="cardBody">
+            <div class="kv">
+              <div>Sender</div><div class="v">${escapeHtml(pkg.sender_name || "—")}</div>
+              <div>Recipient</div><div class="v">${escapeHtml(pkg.recipient_name || "—")}</div>
+              <div>Location</div><div class="v">${escapeHtml(pkg.location || "—")}</div>
+              <div>Delivery</div><div class="v">${escapeHtml((pkg.delivery_date || "").slice(0,10) || "—")}</div>
+            </div>
+          </div>
+
+          <div class="cardActions">
+            <div class="muted">
+              <span><strong>ID:</strong> ${escapeHtml(pkg.id)}</span>
+            </div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btnSmall" data-action="copy" data-tn="${escapeHtml(pkg.tracker_number)}">Copy Tracker</button>
+              <button class="btnSmall" data-action="invoice" data-id="${escapeHtml(pkg.id)}">Print Invoice</button>
+              <button class="btnSmall btnDanger" data-action="delete" data-tn="${escapeHtml(pkg.tracker_number)}">Delete</button>
+            </div>
+          </div>
+        `;
+
+        card.querySelectorAll("button[data-action]").forEach(btn => {
+          btn.addEventListener("click", async () => {
+            const action = btn.getAttribute("data-action");
+            if (action === "copy"){
+              await copyText(btn.getAttribute("data-tn"));
+            }
+            if (action === "invoice"){
+              const id = btn.getAttribute("data-id");
+              await openInvoiceById(id);
+            }
+            if (action === "delete"){
+              const tn = btn.getAttribute("data-tn");
+              await deletePackage(tn);
+            }
+          });
+        });
+
+        grid.appendChild(card);
+      });
+    }
+
+    // ---------- Delete ----------
+    async function deletePackage(tracker_number){
+      const token = tokenOrRedirect();
+      if (!token) return;
+
+      const ok = await window.AdminUI.confirmDelete(tracker_number);
+      if (!ok) return;
+
+      try{
+        const res = await fetch(`${API_BASE}/api/packages/package/${encodeURIComponent(tracker_number)}`, {
+          method: "DELETE",
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (!res.ok){
+          toast("error", "Delete failed", data.message || data.error || "Could not delete package.");
+          return;
+        }
+
+        toast("ok", "Deleted", "Package deleted successfully.");
+        allPackages = allPackages.filter(p => String(p.tracker_number) !== String(tracker_number));
+        applySearch();
+      }catch(e){
+        toast("error", "Network error", "Could not delete package.");
+      }
+    }
+
+    // ---------- Invoice Modal ----------
+    const overlay = document.getElementById("invoiceOverlay");
+    const invContent = document.getElementById("invoiceContent");
+    const invTitle = document.getElementById("invTitle");
+
+    document.getElementById("invCloseBtn").addEventListener("click", closeInvoice);
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) closeInvoice();
+    });
+
+    document.getElementById("invPrintBtn").addEventListener("click", () => {
+      window.print();
+    });
+
+    document.getElementById("invCopyBtn").addEventListener("click", async () => {
+      if (!currentInvoicePkg) return;
+      await copyText(currentInvoicePkg.tracker_number);
+    });
+
+    function closeInvoice(){
+      overlay.classList.remove("show");
+      overlay.setAttribute("aria-hidden", "true");
+      currentInvoicePkg = null;
+      invContent.innerHTML = "";
+    }
+
+    function formatDate(iso){
+      const d = String(iso || "").slice(0,10);
+      return d || "—";
+    }
+
+    function makeBarcodeSVG(text){
+      const value = String(text || "");
+      const bars = [];
+      let x = 0;
+      const h = 60;
+
+      for (let i=0; i<value.length; i++){
+        const c = value.charCodeAt(i);
+        const w1 = 1 + (c % 3);
+        const w2 = 1 + ((c >> 2) % 3);
+        const gap = 1 + ((c >> 4) % 2);
+
+        bars.push(`<rect x="${x}" y="6" width="${w1}" height="${h}" fill="#111827"/>`);
+        x += w1 + gap;
+
+        bars.push(`<rect x="${x}" y="6" width="${w2}" height="${h}" fill="#111827"/>`);
+        x += w2 + gap;
+      }
+      const width = Math.max(220, x + 8);
+
+      return `
+        <svg class="barcodeSvg" viewBox="0 0 ${width} 72" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Barcode">
+          <rect x="0" y="0" width="${width}" height="72" fill="#ffffff"/>
+          ${bars.join("")}
+          <text x="8" y="70" font-size="12" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace" fill="#111827">${escapeHtml(value)}</text>
+        </svg>
+      `;
+    }
+
+    async function openInvoiceById(id){
+      try{
+        const pkg = await fetchPackageById(id);
+        currentInvoicePkg = pkg;
+
+        invTitle.textContent = `Invoice • ${pkg.tracker_number}`;
+        const senderAddr = safeText(pkg.sender_address) || "—";
+        const recipAddr = safeText(pkg.recipient_address) || "—";
+
+        const deliveryCharge = safeText(pkg.delivery_charge) || "—";
+        const shippedOut = formatDate(pkg.shipped_out_date);
+        const deliveryDate = formatDate(pkg.delivery_date);
+
+        let lastUpdateText = "—";
+        try{
+          const ures = await fetch(`${API_BASE}/api/packages/package/${encodeURIComponent(pkg.tracker_number)}/updates`);
+          const udata = await ures.json();
+          if (ures.ok && (udata.updates || []).length){
+            const last = udata.updates[udata.updates.length - 1];
+            lastUpdateText = `${safeText(last.update_message) || "Update"} • ${safeText(last.location) || ""}`.trim();
+          }
+        }catch(e){}
+
+        invContent.innerHTML = `
+          <div class="invHead">
+            <div class="brand">
+              <div class="brandMark">SL</div>
+              <div>
+                <h2>Admin</h2>
+                <p>Shipping Receipt / Invoice (USA-based format)</p>
+              </div>
+            </div>
+
+            <div class="invMeta">
+              <p class="title">Shipment Receipt</p>
+              <p class="small">
+                <strong>Tracker:</strong> ${escapeHtml(pkg.tracker_number)}<br/>
+                <strong>Status:</strong> ${escapeHtml(String(pkg.status || "hold").toUpperCase())}<br/>
+                <strong>Delivery Date:</strong> ${escapeHtml(deliveryDate)}<br/>
+                <strong>Shipped Out:</strong> ${escapeHtml(shippedOut)}
+              </p>
+            </div>
+          </div>
+
+          <div class="invBody">
+            <div class="box">
+              <h3>From (Sender)</h3>
+              <div class="addr">
+                <strong>${escapeHtml(pkg.sender_name || "—")}</strong><br/>
+                ${escapeHtml(senderAddr)}
+              </div>
+            </div>
+
+            <div class="box">
+              <h3>To (Recipient)</h3>
+              <div class="addr">
+                <strong>${escapeHtml(pkg.recipient_name || "—")}</strong><br/>
+                ${escapeHtml(recipAddr)}
+              </div>
+            </div>
+          </div>
+
+          <div class="invGrid">
+            <div class="invRow">
+              <div class="invKey">Current Location</div>
+              <div class="invVal">${escapeHtml(pkg.location || "—")}</div>
+            </div>
+            <div class="invRow">
+              <div class="invKey">Delivery Charge</div>
+              <div class="invVal">${escapeHtml(deliveryCharge)}</div>
+            </div>
+            <div class="invRow">
+              <div class="invKey">Latest Update</div>
+              <div class="invVal">${escapeHtml(lastUpdateText)}</div>
+            </div>
+            <div class="invRow">
+              <div class="invKey">Package Notes</div>
+              <div class="invVal">${escapeHtml(pkg.package_information || "—")}</div>
+            </div>
+          </div>
+
+          <div class="barcodeWrap">
+            <div class="barcodeBlock">
+              <div class="barcodeTitle">Scan Barcode</div>
+              <div class="barcodeSub">Use the tracker number for tracking and verification.</div>
+            </div>
+            ${makeBarcodeSVG(pkg.tracker_number)}
+          </div>
+
+          <div class="invFoot">
+            <div>Support: support@example.com</div>
+            <div>Generated by Admin Panel</div>
+          </div>
+        `;
+
+        overlay.classList.add("show");
+        overlay.setAttribute("aria-hidden", "false");
+        toast("ok", "Invoice ready", "You can print or copy tracker number.");
+      }catch(e){
+        toast("error", "Invoice error", "Could not generate invoice for this package.");
+      }
+    }
+
+    // ---------- Init ----------
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!localStorage.getItem("token")) {
+        window.location.href = "index.html";
+        return;
+      }
+      loadPackages();
+    });
+  </script>
+</body>
+</html>

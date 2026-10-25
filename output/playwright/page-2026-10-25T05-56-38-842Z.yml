@@ -1,0 +1,63 @@
+- generic [active] [ref=f1e1]:
+  - banner [ref=f1e2]:
+    - link "G A GLOBAL ACCESS AGENCY COMPANY" [ref=f1e3] [cursor=pointer]:
+      - /url: ../index.html
+      - generic [ref=f1e4]:
+        - text: G
+        - generic [ref=f1e5]: A
+      - generic [ref=f1e6]:
+        - text: GLOBAL ACCESS
+        - generic [ref=f1e7]: AGENCY COMPANY
+    - navigation [ref=f1e8]:
+      - link "Home" [ref=f1e9] [cursor=pointer]:
+        - /url: ../index.html
+      - link "About" [ref=f1e10] [cursor=pointer]:
+        - /url: about.html
+      - link "Services ⌄" [ref=f1e11] [cursor=pointer]:
+        - /url: services.html
+      - link "Contact" [ref=f1e12] [cursor=pointer]:
+        - /url: contact.html
+      - link "Track a shipment ↗" [ref=f1e13] [cursor=pointer]:
+        - /url: track.html
+  - main [ref=f1e14]:
+    - generic [ref=f1e16]:
+      - generic [ref=f1e17]:
+        - link "Home" [ref=f1e18] [cursor=pointer]:
+          - /url: ../index.html
+        - text: / Track a shipment
+      - generic [ref=f1e19]: YOUR SHIPMENT, IN VIEW
+      - heading [level=1] [ref=f1e20]:
+        - text: A little more clarity
+        - emphasis [ref=f1e21]: along the way.
+      - paragraph [ref=f1e22]: Enter the tracking number shared by our team to see the latest shipment details.
+    - generic [ref=f1e24]:
+      - generic [ref=f1e25]: TRACKING NUMBER
+      - generic [ref=f1e26]:
+        - textbox "TRACKING NUMBER" [ref=f1e27]:
+          - /placeholder: e.g. AAE1-12-0000000001
+        - button "Find shipment" [ref=f1e28] [cursor=pointer]: →
+      - status [ref=f1e29]: Your shipment details are available with your tracking number.
+  - contentinfo [ref=f1e30]:
+    - generic [ref=f1e31]:
+      - link "G A GLOBAL ACCESS AGENCY COMPANY" [ref=f1e32] [cursor=pointer]:
+        - /url: ../index.html
+        - generic [ref=f1e33]:
+          - text: G
+          - generic [ref=f1e34]: A
+        - generic [ref=f1e35]:
+          - text: GLOBAL ACCESS
+          - generic [ref=f1e36]: AGENCY COMPANY
+      - paragraph [ref=f1e37]: Thoughtful logistics. Stronger connections.
+      - link "Need a hand? Contact us ↗" [ref=f1e38] [cursor=pointer]:
+        - /url: contact.html
+    - generic [ref=f1e39]:
+      - generic [ref=f1e40]: © 2026 Global Access Agency Company
+      - generic [ref=f1e41]:
+        - link "About" [ref=f1e42] [cursor=pointer]:
+          - /url: about.html
+        - link "Services" [ref=f1e43] [cursor=pointer]:
+          - /url: services.html
+        - link "Contact" [ref=f1e44] [cursor=pointer]:
+          - /url: contact.html
+      - link "BACK TO TOP ↑" [ref=f1e45] [cursor=pointer]:
+        - /url: "#top"

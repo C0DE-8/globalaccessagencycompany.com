@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create Package | Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+
+<body>
+  <div id="preloader"><div class="spinner"></div></div>
+
+  <header class="header">
+    <a href="dashboard.html" class="logo">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16.46 8.9L7.54 1.1A2 2 0 0 0 4 2.8v18.4a2 2 0 0 0 3.54 1.7l8.92-7.8a2 2 0 0 0 0-2.6Z"/>
+        <path d="M22 12H12"/>
+      </svg>
+      Admin
+    </a>
+
+    <div class="headerRight">
+      <div class="pill" id="adminPill">
+        Admin: <strong id="adminEmail">—</strong> • Role: <strong id="adminRole">—</strong>
+      </div>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="formWrap">
+      <div class="topRow">
+        <div>
+          <h1 style="margin:0">Create Package</h1>
+          <p class="sub" style="margin:.3rem 0 0 0">Fill in details and create a tracking record.</p>
+        </div>
+        <button class="backBtn" id="backBtn">← Back</button>
+      </div>
+
+      <div class="notice" id="notice"></div>
+
+      <form id="createForm">
+        <div class="grid">
+          <div class="field">
+            <label for="sender_name">Sender Name *</label>
+            <input id="sender_name" name="sender_name" placeholder="e.g. John Doe" required />
+          </div>
+
+          <div class="field">
+            <label for="recipient_name">Recipient Name *</label>
+            <input id="recipient_name" name="recipient_name" placeholder="e.g. Jane Smith" required />
+          </div>
+
+          <div class="field full">
+            <label for="sender_address">Sender Address *</label>
+            <input id="sender_address" name="sender_address" placeholder="Street, City, State, Country" required />
+          </div>
+
+          <div class="field full">
+            <label for="recipient_address">Recipient Address *</label>
+            <input id="recipient_address" name="recipient_address" placeholder="Street, City, State, Country" required />
+          </div>
+
+          <div class="field">
+            <label for="location">Current Location</label>
+            <input id="location" name="location" placeholder="e.g. Lagos, Nigeria" />
+            <div class="hint">If empty, backend defaults to “Unknown”.</div>
+          </div>
+
+          <div class="field">
+            <label for="delivery_charge">Delivery Charge</label>
+            <select id="delivery_charge" name="delivery_charge">
+              <option value="">Default (not_paid)</option>
+              <option value="not_paid">Not Paid</option>
+              <option value="paid">Paid</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="delivery_date">Delivery Date</label>
+            <input id="delivery_date" name="delivery_date" type="date" />
+            <div class="hint">If empty, backend uses today’s date.</div>
+          </div>
+
+          <div class="field">
+            <label for="shipped_out_date">Shipped Out Date</label>
+            <input id="shipped_out_date" name="shipped_out_date" type="date" />
+            <div class="hint">Optional.</div>
+          </div>
+
+          <div class="field">
+            <label for="status">Status</label>
+            <select id="status" name="status">
+              <option value="">Default (hold)</option>
+              <option value="hold">Hold</option>
+              <option value="active">Active</option>
+              <option value="shipped">Shipped</option>
+              <option value="delivered">Delivered</option>
+              <option value="in_transit">In Transit</option>
+            </select>
+          </div>
+
+          <div class="field full">
+            <label for="package_information">Package Information</label>
+            <textarea id="package_information" name="package_information" placeholder="Type package notes, contents, handling info..."></textarea>
+          </div>
+        </div>
+
+        <div class="btnRow">
+          <button type="submit" class="btnPrimary" id="submitBtn">
+            <span id="btnSpin" class="inlineSpinner" style="display:none"></span>
+            <span id="btnText">Create Package</span>
+          </button>
+
+          <button type="button" class="btnGhost" id="resetBtn">Reset</button>
+        </div>
+      </form>
+
+      <div class="resultBox" id="resultBox">
+        <p class="resultTitle">✅ Package Created</p>
+        <div class="kv">
+          <div>Tracker #</div><div id="r_tracker">—</div>
+          <div>Status</div><div id="r_status">—</div>
+          <div>Location</div><div id="r_location">—</div>
+          <div>Delivery Date</div><div id="r_delivery">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    &copy; 2025 Admin. All rights reserved.
+  </footer>
+
+  <script>
+    const API_BASE = "https://api.veliport24.com";
+
+    // Preloader
+    window.addEventListener("load", () => {
+      const preloader = document.getElementById("preloader");
+      if (preloader) {
+        preloader.classList.add("hidden");
+        setTimeout(() => (preloader.style.display = "none"), 500);
+      }
+    });
+
+    // Logout
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("adminEmail");
+      localStorage.removeItem("adminRole");
+      window.location.href = "index.html";
+    });
+
+    // Back
+    document.getElementById("backBtn").addEventListener("click", () => {
+      window.location.href = "dashboard.html";
+    });
+
+    // Header cached profile
+    (function loadHeaderCache(){
+      const cachedEmail = localStorage.getItem("adminEmail") || "—";
+      const cachedRole = localStorage.getItem("adminRole") || "—";
+      document.getElementById("adminEmail").textContent = cachedEmail;
+      document.getElementById("adminRole").textContent = cachedRole;
+    })();
+
+    function showNotice(type, text) {
+      const el = document.getElementById("notice");
+      el.className = "notice " + (type || "");
+      el.textContent = text || "";
+    }
+
+    function setBusy(busy){
+      const btn = document.getElementById("submitBtn");
+      const spin = document.getElementById("btnSpin");
+      const text = document.getElementById("btnText");
+      btn.disabled = !!busy;
+      spin.style.display = busy ? "inline-block" : "none";
+      text.textContent = busy ? "Creating..." : "Create Package";
+    }
+
+    function getTokenOrRedirect(){
+      const token = localStorage.getItem("token");
+      if (!token){
+        window.location.href = "index.html";
+        return null;
+      }
+      return token;
+    }
+
+    // Reset
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      document.getElementById("createForm").reset();
+      document.getElementById("resultBox").classList.remove("show");
+      showNotice("", "");
+    });
+
+    // Submit
+    document.getElementById("createForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      showNotice("", "");
+      document.getElementById("resultBox").classList.remove("show");
+
+      const token = getTokenOrRedirect();
+      if (!token) return;
+
+      const body = {
+        sender_name: document.getElementById("sender_name").value.trim(),
+        sender_address: document.getElementById("sender_address").value.trim(),
+        recipient_name: document.getElementById("recipient_name").value.trim(),
+        recipient_address: document.getElementById("recipient_address").value.trim(),
+        location: document.getElementById("location").value.trim() || undefined,
+        delivery_charge: document.getElementById("delivery_charge").value || undefined,
+        delivery_date: document.getElementById("delivery_date").value || undefined,
+        shipped_out_date: document.getElementById("shipped_out_date").value || undefined,
+        status: document.getElementById("status").value || undefined,
+        package_information: document.getElementById("package_information").value.trim() || undefined,
+      };
+
+      // Client-side required checks (same as backend)
+      if (!body.sender_name) return showNotice("error", "Sender name is required.");
+      if (!body.sender_address) return showNotice("error", "Sender address is required.");
+      if (!body.recipient_name) return showNotice("error", "Recipient name is required.");
+      if (!body.recipient_address) return showNotice("error", "Recipient address is required.");
+
+      setBusy(true);
+
+      try {
+        const res = await fetch(`${API_BASE}/api/packages/create-package`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify(body),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          showNotice("error", data.message || data.error || "Failed to create package.");
+          return;
+        }
+
+        const pkg = data.package || {};
+        showNotice("ok", data.message || "Package created successfully!");
+
+        // Show result
+        document.getElementById("r_tracker").textContent = pkg.tracker_number || "—";
+        document.getElementById("r_status").textContent = pkg.status || "—";
+        document.getElementById("r_location").textContent = pkg.location || "—";
+        document.getElementById("r_delivery").textContent = (pkg.delivery_date || "—");
+        document.getElementById("resultBox").classList.add("show");
+
+        // optional: reset form after success
+        // document.getElementById("createForm").reset();
+      } catch (err) {
+        showNotice("error", "Network error. Please try again.");
+      } finally {
+        setBusy(false);
+      }
+    });
+
+    // Guard if not logged in
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!localStorage.getItem("token")) window.location.href = "index.html";
+    });
+  </script>
+</body>
+</html>

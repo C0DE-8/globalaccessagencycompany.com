@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+
+<head>
+  <!-- metas -->
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <!-- title  -->
+  <title>.veliport24  Delivery Service</title>
+  <!-- favicon -->
+  <link rel="shortcut icon" href="img/logos/favicon.png" />
+
+  <!-- plugins -->
+  <link rel="stylesheet" href="css/plugins.css" />
+
+  <!-- search css -->
+  <link rel="stylesheet" href="search/search.css" />
+
+  <!-- quform css -->
+  <link rel="stylesheet" href="quform/css/base.css" />
+
+  <!-- core style css -->
+  <link href="css/styles.css" rel="stylesheet" />
+
+  <!-- Add Tailwind CSS for enhanced styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Add Axios for API calls -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <!-- jsPDF for invoice generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    /* FedEx Brand Colors */
+    :root {
+      --fedex-purple: #4D148C;
+      --fedex-orange: #FF6600;
+      --fedex-dark: #1a1a1a;
+      --fedex-light: #f5f5f5;
+      --fedex-gray: #666666;
+    }
+
+    /* Enhanced Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 5% auto;
+      padding: 0;
+      border: none;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 900px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      padding: 20px;
+    }
+
+    .modal .close:hover,
+    .modal .close:focus {
+      color: #000;
+      text-decoration: none;
+    }
+
+    /* Professional Package Details Styling */
+    .package-details {
+      padding: 30px;
+    }
+
+    .package-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 3px solid var(--fedex-purple);
+    }
+
+    .package-header h3 {
+      color: var(--fedex-purple);
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .status-badge {
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: 700;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .status-delivered {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      border: 2px solid #2e7d32;
+    }
+
+    .status-in-transit {
+      background-color: #fff3e0;
+      color: var(--fedex-orange);
+      border: 2px solid var(--fedex-orange);
+    }
+
+    .status-pending {
+      background-color: #f3e5f5;
+      color: var(--fedex-purple);
+      border: 2px solid var(--fedex-purple);
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .detail-card {
+      background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%);
+      border-left: 4px solid var(--fedex-purple);
+      border-radius: 8px;
+      padding: 20px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .detail-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(77, 20, 140, 0.15);
+      border-left-color: var(--fedex-orange);
+    }
+
+    .detail-card h4 {
+      color: var(--fedex-purple);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .detail-card p {
+      color: var(--fedex-dark);
+      font-size: 16px;
+      font-weight: 500;
+      margin: 0;
+      word-break: break-word;
+    }
+
+    .download-section {
+      text-align: center;
+      padding-top: 20px;
+      border-top: 2px solid #e0e0e0;
+    }
+
+    .download-btn {
+      background: linear-gradient(135deg, var(--fedex-purple), #6a1b9a);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(77, 20, 140, 0.4);
+      background: linear-gradient(135deg, #6a1b9a, var(--fedex-purple));
+    }
+
+    /* Loading Animation */
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .loading-spinner {
+      border: 4px solid #f3f4f6;
+      border-top: 4px solid var(--fedex-purple);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Message Styling */
+    .message {
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      font-weight: 500;
+    }
+
+    .message.success {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #81c784;
+    }
+
+    .message.error {
+      background-color: #ffebee;
+      color: #c62828;
+      border: 1px solid #ef5350;
+    }
+
+    /* Floating Elements */
+    #floatingElements {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .floating-cube {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: linear-gradient(45deg, var(--fedex-purple), var(--fedex-orange));
+      opacity: 0.05;
+      animation: float 20s infinite linear;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(100vh) rotate(0deg);
+      }
+
+      100% {
+        transform: translateY(-100px) rotate(360deg);
+      }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .modal-content {
+        width: 95%;
+        margin: 10% auto;
+      }
+
+      .details-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .package-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Floating Elements Container -->
+  <div id="floatingElements"></div>
+
+  <!-- PAGE LOADING -->
+  <div id="preloader"></div>
+
+  <!-- MAIN WRAPPER -->
+  <div class="main-wrapper">
+
+    <!-- HEADER -->
+    <header class="header-style1 menu_area-light" id="header">
+      <div class="navbar-default border-bottom border-color-light-white">
+        <div class="container-fluid px-lg-1-6 px-xl-2-5 px-xxl-2-9">
+          <div class="row align-items-center">
+            <div class="col-12 col-lg-12">
+              <div class="menu_area alt-font">
+                <nav class="navbar navbar-expand-lg navbar-light p-0">
+                  <div class="navbar-header navbar-header-custom">
+                    <a href="index-2.html" class="navbar-brand logochange">
+                      <img id="logo" src="img/logos/logo-inner.png" style="height:60px" alt="logo">
+                    </a>
+                  </div>
+
+                  <div class="navbar-toggler bg-primary mobile-menu-btn"></div>
+
+                  <div class="nav-content">
+                    <ul class="navbar-nav ms-auto nav-links" id="nav" style="display: none;">
+                      <li class="active"><a href="index.html">Home</a></li>
+                      <li><a href="about.html">About</a></li>
+                      <li>
+                        <a href="services.html">Services</a>
+                        <ul>
+                          <li><a href="services/air-freight.html">Air Freight</a></li>
+                          <li><a href="services/road-transport.html">Road Freight</a></li>
+                          <li><a href="services/ocean-freight.html">Ocean Freight</a></li>
+                          <li><a href="services/rail-freight.html">Rail Freight</a></li>
+                          <li><a href="services/warehousing.html">Warehousing</a></li>
+                          <li><a href="services/multimodal.html">Multimodal</a></li>
+                        </ul>
+                      </li>
+                      <li><a href="track.html">Track Shipment</a></li>
+                      <li><a href="faq.html">FAQ</a></li>
+                    </ul>
+                  </div>
+
+                  <div class="attr-nav align-items-xl-center ms-xl-auto main-font">
+                    <ul>
+                      <li class="d-none d-xl-inline-block">
+                        <a href="track.html" class="butn md">
+                          <span class="text-white" style="font-size:16px">Track Now</span>
+                        </a>
+                      </li>
+                      <li class="search-btn">
+                        <button class="butn md">Search</button>
+                      </li>
+                      <li class="account-btn">
+                        <button class="butn md">Account</button>
+                      </li>
+                    </ul>
+                  </div>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- PAGE TITLE -->
+    <section class="page-title-section bg-img cover-background top-position1 left-overlay-dark" data-overlay-dark="9"
+      data-background="img/banner/banner-01.html">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12">
+            <h1 class="text-animation" data-in-effect="fadeInUp">Track</h1>
+          </div>
+          <div class="col-md-12">
+            <ul class="wow fadeInUp" data-wow-delay="400ms">
+              <li><a href="index-2.html">Home</a></li>
+              <li><a href="#!">Track</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRACKING FORM -->
+    <section class="position-relative corporate-form scroll-animate">
+      <div class="container">
+        <div class="row g-0 overlap-column">
+          <div class="col-lg-6">
+            <div class="common-border bg-white p-1-9 p-md-2-4 p-xl-7 border-radius-10">
+              <h3 class="mb-1-9 font-weight-800">Track & <span class="text-secondary">Trace</span></h3>
+              <p>To track your package, please enter the tracking/consignment number in the box below.</p>
+
+              <!-- Messages -->
+              <div id="message" class="message" style="display: none;"></div>
+
+              <!-- Loading -->
+              <div id="loading" class="loading">
+                <div class="loading-spinner"></div>
+                <p>Locating shipment...</p>
+              </div>
+
+              <form class="track-form" id="trackForm" action="#" method="post">
+                <div class="quform-elements">
+                  <div class="row">
+                    <div class="col-12">
+                      <div class="quform-element form-group">
+                        <label for="trackerInput">Tracking Code <span class="quform-required">*</span></label>
+                        <div class="quform-input">
+                          <input class="form-control" type="text" name="trackerInput" id="trackerInput"
+                            placeholder="Enter the tracking code here..." required="">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-12">
+                      <div class="quform-submit-inner">
+                        <button class="butn theme butn-md" type="button" id="trackButton">
+                          <span>Track Now</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+
+              <!-- Results Container -->
+              <div id="result"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="position-relative">
+      <div class="container z-index-9 position-relative">
+        <div class="row py-8">
+          <div class="col-lg-4 col-xl-3 col-md-6 col-sm-6 wow fadeIn" data-wow-delay="200ms">
+            <div class="footer-logo mb-1">
+              <img src="img/logos/footer-light-logo.png" style="height:50px !important;" alt="...">
+            </div>
+            <p class="text-white" style="font-size:14px;">Pointone Delivery Service was built on a firm foundation of
+              trust and ethics, we take pride in serving our customers with the utmost honesty and integrity.</p>
+          </div>
+          <div class="col-lg-2 col-xl-2 col-md-3 col-sm-6 mt-2-2 mt-sm-0 wow fadeIn" data-wow-delay="350ms">
+            <h3 class="text-white h5 mb-3">Quick links</h3>
+            <ul class="footer-list list-unstyled">
+              <li><a href="about.html">About</a></li>
+              <li><a href="track.html">Track Shipment</a></li>
+              <li><a href="faq.html">FAQ</a></li>
+            </ul>
+          </div>
+          <div class="col-lg-2 col-xl-2 col-md-3 col-sm-6 mt-2-2 mt-md-0 wow FadeIn" data-wow-delay="500ms">
+            <h3 class="text-white h5 mb-3">Our Services</h3>
+            <ul class="footer-list list-unstyled">
+              <li><a href="services/air-freight.html">Air Freight</a></li>
+              <li><a href="services/road-transport.html">Road Freight</a></li>
+              <li><a href="services/ocean-freight.html">Ocean Freight</a></li>
+              <li><a href="services/rail-freight.html">Rail Freight</a></li>
+            </ul>
+          </div>
+          <div class="col-lg-4 col-xl-4 col-md-12 col-sm-6 offset-xl-1 wow fadeIn mt-2-2 mt-lg-0"
+            data-wow-delay="650ms">
+            <div class="d-flex align-items-center">
+              <div class="flex-grow-1">
+                <h3 class="text-white h5">Contact Us</h3>
+              </div>
+            </div>
+            <ul class="list-unstyled mb-0">
+              <li class="mb-3 d-flex align-items-baseline">
+                <a href="#!" class="text-white text-primary-hover">
+                  <i class="far fa-envelope text-primary display-25 me-4"></i>info@veliport24.com
+                </a>
+              </li>
+              <li class="mb-3 d-flex align-items-baseline">
+                <a href="#!" class="text-white text-primary-hover">
+                  <i class="fas fa-mobile-alt text-primary display-25 me-4"></i>+1(504) 233-4140
+                </a>
+              </li>
+              <li class="text-white d-flex align-items-baseline">
+                <i class="fas fa-map-marker-alt text-primary display-25 me-4"></i>159 Carriage Dr, Carol Stream, IL 60188
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="border-top border-color-light-white z-index-9 position-relative wow FadeIn" data-wow-delay="700ms">
+        <div class="container">
+          <div class="row align-items-center py-3">
+            <div class="col-md-7 col-lg-6 text-center text-md-start order-2 order-md-1">
+              <p class="d-inline-block text-white mb-0">&copy; Copyright<span class="current-year"></span> Pointone
+                Delivery Service. All Rights Reserved </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- SCROLL TO TOP -->
+  <a href="#!" class="scroll-to-top"><i class="fas fa-angle-up" aria-hidden="true"></i></a>
+
+  <!-- Scripts -->
+  <script src="js/jquery.min.js"></script>
+  <script src="js/popper.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/core.min.js"></script>
+  <script src="search/search.js"></script>
+  <script src="js/main.js"></script>
+  <script src="npm/sweetalert2%4011.html"></script>
+  <script src="quform/js/plugins.js"></script>
+  <script src="quform/js/scripts.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- ✅ FULL WORKING FIX: tracking + invoice download -->
+  <script>
+    // ===== CONFIG =====
+    const API_BASE = "https://api.veliport24.com";
+
+    // Create professional floating elements
+    function createFloatingElements() {
+      const container = document.getElementById('floatingElements');
+      const elementCount = 20;
+      if (!container) return;
+
+      container.innerHTML = "";
+      for (let i = 0; i < elementCount; i++) {
+        const element = document.createElement('div');
+        element.className = 'floating-cube';
+        element.style.left = Math.random() * 100 + '%';
+        element.style.animationDelay = Math.random() * 20 + 's';
+        element.style.animationDuration = (Math.random() * 10 + 15) + 's';
+        container.appendChild(element);
+      }
+    }
+    createFloatingElements();
+
+    // Header scroll effect
+    window.addEventListener('scroll', () => {
+      const header = document.getElementById('header');
+      if (!header) return;
+      if (window.scrollY > 100) header.classList.add('scrolled');
+      else header.classList.remove('scrolled');
+    });
+
+    // Scroll animations
+    const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('animate');
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.scroll-animate').forEach(el => observer.observe(el));
+
+    // Messages
+    function showMessage(text, type) {
+      const messageDiv = document.getElementById('message');
+      if (!messageDiv) return;
+      messageDiv.textContent = text;
+      messageDiv.className = `message ${type}`;
+      messageDiv.style.display = 'block';
+    }
+
+    function hideMessage() {
+      const messageDiv = document.getElementById('message');
+      if (!messageDiv) return;
+      messageDiv.style.display = 'none';
+      messageDiv.textContent = '';
+    }
+
+    // Status badge class
+    function getStatusClass(status) {
+      if (!status || typeof status !== 'string') return 'status-pending';
+      const s = status.toLowerCase();
+      if (s.includes('delivered')) return 'status-delivered';
+      if (s.includes('transit') || s.includes('shipping') || s.includes('shipped') || s.includes('active')) return 'status-in-transit';
+      return 'status-pending';
+    }
+
+    // 🔹 Live track redirect
+    function openLiveTrack(trackerNumber) {
+      if (!trackerNumber) {
+        showMessage('Tracking number missing for live tracking.', 'error');
+        return;
+      }
+      window.location.href = `tracking-map.html?tracker=${encodeURIComponent(trackerNumber)}`;
+    }
+
+    // ✅ IMPORTANT FIX:
+    // No inline onclick with string params.
+    // We attach click handlers in JS using the pkg object directly
+    function displayPackageDetailsWithMap(pkg) {
+      const resultDiv = document.getElementById('result');
+      const loadingDiv = document.getElementById('loading');
+
+      if (loadingDiv) loadingDiv.style.display = 'none';
+      if (!resultDiv) return;
+
+      // Clear previous result
+      resultDiv.innerHTML = "";
+
+      // Defensive defaults
+      pkg = pkg || {};
+      const statusClass = getStatusClass(pkg.status);
+
+      const wrap = document.createElement('div');
+      wrap.className = 'package-details';
+      wrap.innerHTML = `
+        <div class="package-header">
+          <h3><i class="fas fa-box"></i> Shipment Details</h3>
+          <span class="status-badge ${statusClass}">${pkg.status || 'Unknown'}</span>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; margin-bottom:20px; gap:10px; flex-wrap:wrap;">
+          <button class="download-btn" id="liveTrackBtn">
+            <i class="fas fa-map-marker-alt"></i> Live Track
+          </button>
+        </div>
+
+        <div class="details-grid">
+          <div class="detail-card">
+            <h4><i class="fas fa-barcode"></i> Tracking Number</h4>
+            <p>${pkg.tracker_number || 'N/A'}</p>
+          </div>
+          <div class="detail-card">
+            <h4><i class="fas fa-user"></i> Sender</h4>
+            <p>${pkg.sender_name || 'N/A'}</p>
+          </div>
+          <div class="detail-card">
+            <h4><i class="fas fa-user-friends"></i> Recipient</h4>
+            <p>${pkg.recipient_name || 'N/A'}</p>
+          </div>
+          <div class="detail-card">
+            <h4><i class="fas fa-map-marker-alt"></i> Current Location</h4>
+            <p>${pkg.location || 'N/A'}</p>
+          </div>
+          <div class="detail-card">
+            <h4><i class="fas fa-home"></i> Origin</h4>
+            <p>${pkg.sender_address || 'N/A'}</p>
+          </div>
+          <div class="detail-card">
+            <h4><i class="fas fa-home"></i> Destination</h4>
+            <p>${pkg.recipient_address || 'N/A'}</p>
+          </div>
+          <div class="detail-card">
+            <h4><i class="fas fa-dollar-sign"></i> Shipping Cost</h4>
+            <p>$${(pkg.delivery_charge ?? '0.00')}</p>
+          </div>
+          <div class="detail-card">
+            <h4><i class="fas fa-calendar"></i> Expected Delivery</h4>
+            <p>${pkg.delivery_date || 'N/A'}</p>
+          </div>
+          <div class="detail-card" style="grid-column: 1 / -1;">
+            <h4><i class="fas fa-info-circle"></i> Package Information</h4>
+            <p>${pkg.package_information || 'N/A'}</p>
+          </div>
+        </div>
+
+        <div class="download-section">
+          <button class="download-btn" id="downloadInvoiceBtn">
+            <i class="fas fa-download"></i> Download Invoice
+          </button>
+        </div>
+      `;
+
+      resultDiv.appendChild(wrap);
+
+      // Attach events safely (no broken HTML if text contains quotes)
+      const liveBtn = document.getElementById("liveTrackBtn");
+      const dlBtn = document.getElementById("downloadInvoiceBtn");
+
+      if (liveBtn) {
+        liveBtn.addEventListener("click", () => openLiveTrack(pkg.tracker_number));
+      }
+
+      if (dlBtn) {
+        dlBtn.addEventListener("click", () => {
+          generateProfessionalInvoice(
+            pkg.tracker_number,
+            pkg.sender_name,
+            pkg.recipient_name,
+            pkg.sender_address,
+            pkg.recipient_address,
+            pkg.delivery_charge,
+            pkg.status,
+            pkg.delivery_date,
+            pkg.location,
+            pkg.package_information
+          );
+        });
+      }
+
+      showMessage('Shipment located successfully!', 'success');
+    }
+
+    // ✅ Invoice Generator (fixed + guarded + page overflow safe)
+    function generateProfessionalInvoice(
+      trackerNumber,
+      senderName,
+      recipientName,
+      senderAddress,
+      recipientAddress,
+      deliveryCharge,
+      status,
+      deliveryDate,
+      location,
+      packageInfo
+    ) {
+      try {
+        // ensure jsPDF exists
+        if (!window.jspdf || !window.jspdf.jsPDF) {
+          showMessage("Invoice generator not loaded. Refresh and try again.", "error");
+          return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // defaults
+        trackerNumber = trackerNumber || "N/A";
+        senderName = senderName || "N/A";
+        recipientName = recipientName || "N/A";
+        senderAddress = senderAddress || "N/A";
+        recipientAddress = recipientAddress || "N/A";
+        deliveryCharge = (deliveryCharge == null || deliveryCharge === "") ? "0.00" : String(deliveryCharge);
+        status = status || "N/A";
+        deliveryDate = deliveryDate || "N/A";
+        location = location || "N/A";
+        packageInfo = packageInfo || "N/A";
+
+        // Colors
+        const primaryBlue = [15, 23, 42];
+        const accentBlue = [14, 165, 233];
+        const textDark = [30, 41, 59];
+        const lightGray = [248, 250, 252];
+
+        // Header bar
+        doc.setFillColor(...primaryBlue);
+        doc.rect(0, 0, 210, 40, 'F');
+
+        doc.setFillColor(...accentBlue);
+        doc.rect(15, 10, 12, 12, 'F');
+        doc.setFillColor(255, 255, 255);
+        doc.rect(17, 12, 8, 8, 'F');
+        doc.setFillColor(...accentBlue);
+        doc.rect(19, 14, 4, 4, 'F');
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(24);
+        doc.setFont('helvetica', 'bold');
+        doc.text('coastal edge delivery', 35, 25);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Enterprise Logistics Solutions', 35, 31);
+
+        doc.setFontSize(18);
+        doc.setFont('helvetica', 'bold');
+        doc.text('SHIPPING INVOICE', 140, 25);
+
+        // Meta box
+        doc.setFillColor(...lightGray);
+        doc.rect(140, 30, 60, 25, 'F');
+        doc.setDrawColor(...accentBlue);
+        doc.rect(140, 30, 60, 25, 'S');
+
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(...textDark);
+        doc.text('Invoice Date:', 142, 37);
+        doc.text(new Date().toLocaleDateString(), 142, 42);
+        doc.text('Invoice #:', 142, 47);
+        doc.text(`DSQ-${trackerNumber}`, 142, 52);
+
+        // Company info
+        doc.setFontSize(10);
+        doc.setTextColor(...textDark);
+        doc.text('Coastal Edge Delivery', 15, 50);
+        doc.text('159 Carriage Dr', 15, 55);
+        doc.text('Carol Stream, IL 60188', 15, 60);
+        doc.text('Phone: +1 (504) 233-4140', 15, 65);
+        doc.text('Email: info@Fastupcourier.com', 15, 70);
+
+        // Section helper with page overflow
+        function ensureSpace(nextY) {
+          if (nextY > 275) {
+            doc.addPage();
+            return 20;
+          }
+          return nextY;
+        }
+
+        let yPos = 80;
+
+        // Tracking info header
+        doc.setFillColor(...primaryBlue);
+        doc.rect(15, yPos, 180, 8, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('SHIPMENT TRACKING INFORMATION', 17, yPos + 6);
+
+        yPos += 15;
+        doc.setTextColor(...textDark);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Tracking Number: ${trackerNumber}`, 17, yPos); yPos += 5;
+        doc.text(`Status: ${status}`, 17, yPos); yPos += 5;
+        doc.text(`Current Location: ${location}`, 17, yPos); yPos += 5;
+        doc.text(`Expected Delivery: ${deliveryDate}`, 17, yPos);
+
+        yPos += 15;
+        yPos = ensureSpace(yPos);
+
+        // Shipment details header
+        doc.setFillColor(...primaryBlue);
+        doc.rect(15, yPos, 180, 8, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('SHIPMENT DETAILS', 17, yPos + 6);
+
+        yPos += 15;
+        yPos = ensureSpace(yPos);
+
+        doc.setTextColor(...textDark);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.text('SENDER:', 17, yPos);
+        doc.text('RECIPIENT:', 110, yPos);
+
+        yPos += 8;
+        yPos = ensureSpace(yPos);
+
+        doc.setFont('helvetica', 'normal');
+        doc.text(senderName, 17, yPos);
+        doc.text(recipientName, 110, yPos);
+
+        yPos += 5;
+        yPos = ensureSpace(yPos);
+
+        const senderLines = doc.splitTextToSize(senderAddress, 85);
+        const recipientLines = doc.splitTextToSize(recipientAddress, 85);
+        const maxLines = Math.max(senderLines.length, recipientLines.length);
+
+        for (let i = 0; i < maxLines; i++) {
+          yPos = ensureSpace(yPos);
+          if (senderLines[i]) doc.text(senderLines[i], 17, yPos);
+          if (recipientLines[i]) doc.text(recipientLines[i], 110, yPos);
+          yPos += 5;
+        }
+
+        yPos += 10;
+        yPos = ensureSpace(yPos);
+
+        // Package info header
+        doc.setFillColor(...primaryBlue);
+        doc.rect(15, yPos, 180, 8, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('PACKAGE INFORMATION', 17, yPos + 6);
+
+        yPos += 15;
+        yPos = ensureSpace(yPos);
+
+        doc.setTextColor(...textDark);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Contents:', 17, yPos);
+        yPos += 5;
+
+        const packageLines = doc.splitTextToSize(String(packageInfo), 170);
+        for (let line of packageLines) {
+          yPos = ensureSpace(yPos);
+          doc.text(line, 17, yPos);
+          yPos += 5;
+        }
+
+        yPos += 10;
+        yPos = ensureSpace(yPos);
+
+        // Billing summary header
+        doc.setFillColor(...primaryBlue);
+        doc.rect(15, yPos, 180, 8, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('BILLING SUMMARY', 17, yPos + 6);
+
+        yPos += 15;
+        yPos = ensureSpace(yPos);
+
+        doc.setTextColor(...textDark);
+        doc.setFontSize(10);
+
+        doc.setFillColor(...lightGray);
+        doc.rect(15, yPos, 180, 8, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.text('Service Description', 17, yPos + 5);
+        doc.text('Amount', 170, yPos + 5);
+
+        yPos += 8;
+        yPos = ensureSpace(yPos);
+
+        doc.setFont('helvetica', 'normal');
+        doc.text('Shipping & Handling', 17, yPos + 5);
+        doc.text(`$${deliveryCharge}`, 170, yPos + 5);
+
+        yPos += 8;
+        yPos = ensureSpace(yPos);
+
+        doc.setFont('helvetica', 'bold');
+        doc.text('Total Amount:', 17, yPos + 5);
+        doc.text(`$${deliveryCharge}`, 170, yPos + 5);
+
+        yPos += 20;
+        yPos = ensureSpace(yPos);
+
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100, 100, 100);
+        doc.text('This invoice is generated electronically and is valid without signature.', 17, yPos);
+        doc.text('For questions about this invoice, please contact our customer service.', 17, yPos + 5);
+        doc.text('Thank you for choosing coastal Edge delivery for your logistics needs.', 17, yPos + 10);
+
+        // Border
+        doc.setDrawColor(...accentBlue);
+        doc.setLineWidth(0.5);
+        doc.rect(10, 10, 190, 270, 'S');
+
+        // Save
+        doc.save(`coastal_Edge_Invoice_${trackerNumber}.pdf`);
+        showMessage('Invoice downloaded successfully!', 'success');
+      } catch (err) {
+        console.error("Invoice error:", err);
+        showMessage("Invoice failed to generate. Open console for details.", "error");
+      }
+    }
+
+    // Track button action
+    function handleTrack() {
+      const trackerNumber = (document.getElementById('trackerInput')?.value || "").trim();
+      const resultDiv = document.getElementById('result');
+      const loadingDiv = document.getElementById('loading');
+
+      hideMessage();
+      if (resultDiv) resultDiv.innerHTML = "";
+      if (loadingDiv) loadingDiv.style.display = "none";
+
+      if (!trackerNumber) {
+        showMessage('Please enter a tracking number.', 'error');
+        return;
+      }
+
+      if (loadingDiv) loadingDiv.style.display = 'block';
+
+      axios.get(`${API_BASE}/api/packages/package/${encodeURIComponent(trackerNumber)}`)
+        .then(response => {
+          if (loadingDiv) loadingDiv.style.display = 'none';
+          const pkg = response.data?.package || response.data || {};
+          displayPackageDetailsWithMap(pkg);
+        })
+        .catch(error => {
+          if (loadingDiv) loadingDiv.style.display = 'none';
+          if (error.response && error.response.status === 404) {
+            showMessage('Shipment not found. Please verify your tracking number.', 'error');
+          } else {
+            showMessage('Unable to retrieve shipment information. Please try again.', 'error');
+          }
+          console.error('Axios error:', error);
+        });
+    }
+
+    // Allow Enter key to trigger tracking
+    document.getElementById('trackerInput')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleTrack();
+      }
+    });
+
+    document.getElementById('trackButton')?.addEventListener('click', handleTrack);
+
+    // Loading text animation
+    const loadingTexts = [
+      'Locating shipment...',
+      'Analyzing tracking data...',
+      'Retrieving package information...',
+      'Synchronizing with network...',
+      'Finalizing results...'
+    ];
+    let loadingTextIndex = 0;
+    setInterval(() => {
+      const loadingDiv = document.getElementById('loading');
+      if (loadingDiv && loadingDiv.style.display === 'block') {
+        const textElement = loadingDiv.querySelector('p');
+        if (textElement) {
+          textElement.textContent = loadingTexts[loadingTextIndex];
+          loadingTextIndex = (loadingTextIndex + 1) % loadingTexts.length;
+        }
+      }
+    }, 1000);
+
+    // Mobile menu functionality
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    const navContent = document.querySelector('.nav-content');
+
+    if (mobileMenuBtn && navContent) {
+      mobileMenuBtn.addEventListener('click', function () {
+        const navLinks = navContent.querySelector('#nav');
+        if (navLinks) {
+          navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+        }
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!e.target.closest('.menu_area')) {
+          const navLinks = navContent.querySelector('#nav');
+          if (navLinks) navLinks.style.display = 'none';
+        }
+      });
+    }
+
+    const searchBtn = document.querySelector('.search-btn');
+    if (searchBtn) {
+      searchBtn.addEventListener('click', function () {
+        alert('Search functionality coming soon!');
+      });
+    }
+
+    const accountBtn = document.querySelector('.account-btn');
+    if (accountBtn) {
+      accountBtn.addEventListener('click', function () {
+        alert('Account portal coming soon!');
+      });
+    }
+  </script>
+
+  <div class="gtranslate_wrapper"></div>
+  <script>
+    window.gtranslateSettings = { "default_language": "en", "wrapper_selector": ".gtranslate_wrapper", "float_switcher_open_direction": "bottom" }
+  </script>
+  <script src="widgets/latest/float.js" defer=""></script>
+
+</body>
+
+</html>

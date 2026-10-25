@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Load Tracking Map (3-part Route)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #020617;
+      color: #e5e7eb;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2.5fr) minmax(280px, 1fr);
+      height: 100vh;
+    }
+
+    @media (max-width: 800px) {
+      .layout {
+        grid-template-columns: 1fr;
+        grid-template-rows: 60vh minmax(0, 1fr);
+      }
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    .side-panel {
+      background: radial-gradient(circle at top, #111827, #020617);
+      border-left: 1px solid rgba(55, 65, 81, 0.7);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .title {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #9ca3af;
+    }
+
+    .route-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-top: 0.25rem;
+    }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+
+    .step {
+      border-radius: 0.75rem;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      padding: 0.6rem 0.75rem;
+      font-size: 0.85rem;
+      display: flex;
+      gap: 0.6rem;
+      align-items: flex-start;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .step:hover {
+      border-color: rgba(59, 130, 246, 0.8);
+      transform: translateY(-1px);
+    }
+
+    .step.active {
+      border-color: #22c55e;
+      box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.4);
+    }
+
+    .step-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      margin-top: 0.2rem;
+      flex-shrink: 0;
+    }
+
+    .dot-start { background: #3b82f6; }
+    .dot-current { background: #22c55e; box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.2); }
+    .dot-dest { background: #f97316; }
+
+    .step-title {
+      font-weight: 500;
+    }
+
+    .step-meta {
+      font-size: 0.78rem;
+      color: #9ca3af;
+    }
+
+    .progress-wrap {
+      margin-top: 0.5rem;
+    }
+
+    .progress-label {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      margin-bottom: 0.25rem;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: #111827;
+      overflow: hidden;
+    }
+
+    .progress-inner {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #22c55e, #2dd4bf);
+      transition: width 0.2s ease;
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-top: 0.25rem;
+    }
+
+    button {
+      margin-top: auto;
+      padding: 0.55rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: radial-gradient(circle at top left, rgba(34, 197, 94, 0.25), #111827);
+      color: #e5e7eb;
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      justify-content: center;
+    }
+    button:hover {
+      border-color: #22c55e;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <!-- MAP -->
+    <div id="map"></div>
+
+    <!-- SIDE INFO -->
+    <aside class="side-panel">
+      <div>
+        <div class="title">Load route</div>
+        <div class="route-name" id="routeName">Ikorodu ➜ Ogijo ➜ Ibadan</div>
+      </div>
+
+      <div class="steps" id="steps">
+        <!-- Steps injected by JS -->
+      </div>
+
+      <div class="progress-wrap">
+        <div class="progress-label">Journey progress</div>
+        <div class="progress-bar">
+          <div class="progress-inner" id="progressInner"></div>
+        </div>
+        <div class="hint">Click a step or marker – it will highlight here.</div>
+      </div>
+
+      <button id="btnNext">
+        ▶ Move load to next part
+      </button>
+    </aside>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+
+  <script>
+    // --- 1. Define the 3 main points (use Lagos axis for example) ---
+    // You can change these coords to any cities you like
+    const routePoints = [
+      {
+        id: "start",
+        name: "Pickup warehouse",
+        label: "Start",
+        place: "Ikorodu, Lagos",
+        lat: 6.6194,
+        lng: 3.5105,
+        description: "Goods loaded at Ikorodu warehouse."
+      },
+      {
+        id: "current",
+        name: "On the road",
+        label: "Current position",
+        place: "Around Ogijo / Sagamu Rd",
+        lat: 6.7360,
+        lng: 3.5280,
+        description: "Truck currently on Lagos–Ibadan expressway."
+      },
+      {
+        id: "destination",
+        name: "Final destination",
+        label: "Main location",
+        place: "Ibadan, Oyo",
+        lat: 7.3775,
+        lng: 3.9470,
+        description: "Customer delivery point in Ibadan."
+      }
+    ];
+
+    let currentIndex = 1; // which part is active (0 = start, 1 = current, 2 = destination)
+
+    // --- 2. Init the map ---
+    const map = L.map("map").setView([6.9, 3.7], 9); // center around SW Nigeria
+
+    // Use OpenStreetMap tiles (for demo)
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // --- 3. Icons for the 3 points ---
+    function makeIcon(color) {
+      return L.divIcon({
+        className: "",
+        html: `
+          <div style="
+            width:16px;height:16px;border-radius:999px;
+            background:${color};
+            border:2px solid #020617;
+            box-shadow:0 0 0 6px rgba(15,23,42,0.6);
+          "></div>
+        `,
+        iconSize: [16, 16],
+        iconAnchor: [8, 8]
+      });
+    }
+
+    const icons = {
+      start: makeIcon("#3b82f6"),
+      current: makeIcon("#22c55e"),
+      destination: makeIcon("#f97316")
+    };
+
+    const markers = {};
+
+    // --- 4. Add markers + popup ---
+    routePoints.forEach((pt) => {
+      const marker = L.marker([pt.lat, pt.lng], {
+        icon: icons[pt.id]
+      }).addTo(map);
+
+      marker.bindPopup(`<strong>${pt.label}</strong><br>${pt.place}`);
+
+      marker.on("click", () => {
+        currentIndex = routePoints.findIndex((p) => p.id === pt.id);
+        updateUI();
+      });
+
+      markers[pt.id] = marker;
+    });
+
+    // --- 5. Draw line connecting the 3 parts ---
+    const poly = L.polyline(
+      routePoints.map((p) => [p.lat, p.lng]),
+      { color: "#22c55e", weight: 4, opacity: 0.7 }
+    ).addTo(map);
+
+    map.fitBounds(poly.getBounds(), { padding: [30, 30] });
+
+    // --- 6. Side panel steps ---
+    const stepsContainer = document.getElementById("steps");
+    const progressInner = document.getElementById("progressInner");
+
+    function buildSteps() {
+      stepsContainer.innerHTML = "";
+      routePoints.forEach((pt, index) => {
+        const div = document.createElement("div");
+        div.className = "step";
+        div.dataset.index = index;
+
+        const dot = document.createElement("div");
+        dot.className = "step-dot " + (
+          pt.id === "start" ? "dot-start" :
+          pt.id === "current" ? "dot-current" :
+          "dot-dest"
+        );
+
+        const body = document.createElement("div");
+        body.innerHTML = `
+          <div class="step-title">${pt.label}</div>
+          <div class="step-meta">${pt.place}</div>
+          <div class="step-meta">${pt.description}</div>
+        `;
+
+        div.appendChild(dot);
+        div.appendChild(body);
+
+        div.addEventListener("click", () => {
+          currentIndex = index;
+          updateUI();
+          // Center map on this point
+          map.setView([pt.lat, pt.lng], 11);
+          markers[pt.id].openPopup();
+        });
+
+        stepsContainer.appendChild(div);
+      });
+    }
+
+    function updateUI() {
+      // highlight active step
+      const stepEls = stepsContainer.querySelectorAll(".step");
+      stepEls.forEach((el, idx) => {
+        el.classList.toggle("active", idx === currentIndex);
+      });
+
+      // progress: 0%, 50%, 100% based on which part
+      const progressPercent = (currentIndex / (routePoints.length - 1)) * 100;
+      progressInner.style.width = progressPercent + "%";
+    }
+
+    buildSteps();
+    updateUI();
+
+    // --- 7. Button to move item along the 3 parts ---
+    document.getElementById("btnNext").addEventListener("click", () => {
+      currentIndex = (currentIndex + 1) % routePoints.length;
+      const pt = routePoints[currentIndex];
+      map.setView([pt.lat, pt.lng], 11);
+      markers[pt.id].openPopup();
+      updateUI();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Update Package | Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+
+<body>
+  <div class="toastWrap" id="toastWrap"></div>
+
+  <div id="preloader"><div class="spinner"></div></div>
+
+  <header class="header">
+    <a href="dashboard.html" class="logo">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16.46 8.9L7.54 1.1A2 2 0 0 0 4 2.8v18.4a2 2 0 0 0 3.54 1.7l8.92-7.8a2 2 0 0 0 0-2.6Z"/>
+        <path d="M22 12H12"/>
+      </svg>
+      Admin
+    </a>
+
+    <div class="headerRight">
+      <div class="pill" id="adminPill">
+        Admin: <strong id="adminEmail">—</strong> • Role: <strong id="adminRole">—</strong>
+      </div>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="wrap">
+      <div class="topRow">
+        <div>
+          <h1 style="margin:0">Update Package</h1>
+          <p class="sub" style="margin:.3rem 0 0 0">
+            Select a package, update details, and add tracking updates (USA-based examples).
+          </p>
+        </div>
+        <button class="backBtn" id="backBtn">← Back</button>
+      </div>
+
+      <div class="notice" id="notice"></div>
+
+      <!-- Selector -->
+      <div class="selectorCard">
+        <div class="field" style="flex:1; min-width: 240px;">
+          <label for="pkgSelect">Select Package (Tracker #)</label>
+          <select id="pkgSelect">
+            <option value="">Loading…</option>
+          </select>
+        </div>
+
+        <div class="field" style="min-width: 180px;">
+          <button class="btnGhost" id="refreshBtn" type="button">Refresh List</button>
+        </div>
+      </div>
+
+      <!-- Meta -->
+      <div class="pkgMeta" id="pkgMeta">
+        <div class="kv">
+          <div>Package ID</div><div id="m_id">—</div>
+          <div>Tracker #</div><div id="m_tracker">—</div>
+          <div>Created At</div><div id="m_created">—</div>
+        </div>
+      </div>
+
+      <div class="split">
+        <!-- Left: Package Details -->
+        <div class="panel">
+          <div class="panelTitle">
+            <h3>Package Details</h3>
+            <button class="miniBtn" type="button" id="clearBtnTop">Clear Form</button>
+          </div>
+
+          <form id="editForm">
+            <div class="grid">
+              <div class="field">
+                <label for="sender_name">Sender Name</label>
+                <input id="sender_name" placeholder="e.g. John Carter" />
+              </div>
+
+              <div class="field">
+                <label for="recipient_name">Recipient Name</label>
+                <input id="recipient_name" placeholder="e.g. Emily Stone" />
+              </div>
+
+              <div class="field full">
+                <label for="sender_address">Sender Address</label>
+                <input id="sender_address" placeholder="e.g. 1200 Ocean Ave, Santa Monica, CA" />
+              </div>
+
+              <div class="field full">
+                <label for="recipient_address">Recipient Address</label>
+                <input id="recipient_address" placeholder="e.g. 55 W 14th St, New York, NY" />
+              </div>
+
+              <div class="field">
+                <label for="location">Location</label>
+                <input id="location" placeholder="e.g. Dallas, TX Distribution Center" />
+              </div>
+
+              <div class="field">
+                <label for="delivery_charge">Delivery Charge</label>
+                <select id="delivery_charge">
+                  <option value="">(no change)</option>
+                  <option value="not_paid">Not Paid</option>
+                  <option value="paid">Paid</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="delivery_date">Delivery Date</label>
+                <input id="delivery_date" type="date" />
+              </div>
+
+              <div class="field">
+                <label for="shipped_out_date">Shipped Out Date</label>
+                <input id="shipped_out_date" type="date" />
+              </div>
+
+              <div class="field">
+                <label for="status">Status</label>
+                <select id="status">
+                  <option value="">(no change)</option>
+                  <option value="hold">Hold</option>
+                  <option value="active">Active</option>
+                  <option value="shipped">Shipped</option>
+                  <option value="delivered">Delivered</option>
+                 <option value="in_transit">In Transit</option>
+                </select>
+              </div>
+
+              <div class="field full">
+                <label for="package_information">Package Information</label>
+                <textarea id="package_information" placeholder="Notes, contents, handling info..."></textarea>
+              </div>
+            </div>
+
+            <div class="btnRow">
+              <button type="submit" class="btnPrimary" id="saveBtn">
+                <span class="inlineSpinner" id="saveSpin"></span>
+                <span id="saveText">Save Changes</span>
+              </button>
+
+              <button type="button" class="btnGhost" id="clearBtn">Clear</button>
+
+              <button type="button" class="btnDanger" id="deleteBtn">Delete Package</button>
+            </div>
+
+          
+          </form>
+        </div>
+
+        <!-- Right: Tracking Updates (Add + View only) -->
+        <div class="panel">
+          <div class="panelTitle">
+            <h3>Tracking Updates</h3>
+            <button class="miniBtn" type="button" id="reloadUpdatesBtn">Reload</button>
+          </div>
+
+          <form id="addUpdateForm">
+            <div class="field">
+              <label for="update_message">New Update Message *</label>
+              <textarea id="update_message" placeholder="e.g. Arrived at Phoenix, AZ sorting facility..." style="min-height:90px;"></textarea>
+            </div>
+
+            <div class="field" style="margin-top:10px;">
+              <label for="update_location">Location (optional)</label>
+              <input id="update_location" placeholder="e.g. Phoenix, AZ" />
+            </div>
+
+            <div class="btnRow" style="margin-top:12px;">
+              <button type="submit" class="btnPrimary" id="addUpdBtn" style="min-width:160px;">
+                <span class="inlineSpinner" id="addUpdSpin"></span>
+                <span id="addUpdText">Add Update</span>
+              </button>
+              <button type="button" class="btnGhost" id="clearUpdBtn" style="min-width:140px;">Clear</button>
+            </div>
+          </form>
+
+          <div class="updatesList" id="updatesList" style="margin-top:14px;"></div>
+          <p class="hint" style="margin-top:10px;">
+            This section is view-only for updates history.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="footer">
+    &copy; 2025 Admin. All rights reserved.
+  </footer>
+
+  <script src="js/admin-ui.js"></script>
+  <script>
+    const API_BASE = "https://api.veliport24.com";
+
+    let selectedId = null;
+    let selectedTracker = null;
+
+    // ---------- Toast ----------
+    function toast(type, title, text, ms=2600){
+      const wrap = document.getElementById("toastWrap");
+      const el = document.createElement("div");
+      el.className = `toast ${type || "info"}`;
+
+      const icon = document.createElement("div");
+      icon.className = "tIcon";
+      icon.textContent = type === "ok" ? "✓" : (type === "error" ? "!" : "i");
+
+      const body = document.createElement("div");
+      body.className = "tBody";
+      const t1 = document.createElement("p");
+      t1.className = "tTitle";
+      t1.textContent = title || (type === "error" ? "Error" : "Notice");
+      const t2 = document.createElement("p");
+      t2.className = "tText";
+      t2.textContent = text || "";
+      body.appendChild(t1);
+      body.appendChild(t2);
+
+      const close = document.createElement("button");
+      close.className = "tClose";
+      close.innerHTML = "&times;";
+      close.onclick = () => el.remove();
+
+      el.appendChild(icon);
+      el.appendChild(body);
+      el.appendChild(close);
+
+      wrap.appendChild(el);
+
+      setTimeout(() => {
+        if (el && el.parentNode) el.remove();
+      }, ms);
+    }
+
+    // ---------- Preloader ----------
+    window.addEventListener("load", () => {
+      const preloader = document.getElementById("preloader");
+      if (preloader) {
+        preloader.classList.add("hidden");
+        setTimeout(() => (preloader.style.display = "none"), 500);
+      }
+    });
+
+    // ---------- Header cache ----------
+    (function loadHeaderCache(){
+      document.getElementById("adminEmail").textContent = localStorage.getItem("adminEmail") || "—";
+      document.getElementById("adminRole").textContent = localStorage.getItem("adminRole") || "—";
+    })();
+
+    // ---------- Logout ----------
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("adminEmail");
+      localStorage.removeItem("adminRole");
+      window.location.href = "index.html";
+    });
+
+    // ---------- Back ----------
+    document.getElementById("backBtn").addEventListener("click", () => {
+      window.location.href = "dashboard.html";
+    });
+
+    function tokenOrRedirect(){
+      const t = localStorage.getItem("token");
+      if (!t) { window.location.href = "index.html"; return null; }
+      return t;
+    }
+
+    function showNotice(type, text){
+      const el = document.getElementById("notice");
+      el.className = "notice " + (type || "");
+      el.textContent = text || "";
+    }
+
+    function setBusySave(b){
+      const btn = document.getElementById("saveBtn");
+      const spin = document.getElementById("saveSpin");
+      const txt = document.getElementById("saveText");
+      btn.disabled = !!b;
+      spin.style.display = b ? "inline-block" : "none";
+      txt.textContent = b ? "Saving..." : "Save Changes";
+    }
+
+    function setBusyAddUpdate(b){
+      const btn = document.getElementById("addUpdBtn");
+      const spin = document.getElementById("addUpdSpin");
+      const txt = document.getElementById("addUpdText");
+      btn.disabled = !!b;
+      spin.style.display = b ? "inline-block" : "none";
+      txt.textContent = b ? "Adding..." : "Add Update";
+    }
+
+    function clearPackageForm(){
+      const ids = [
+        "sender_name","sender_address","recipient_name","recipient_address",
+        "location","delivery_charge","delivery_date","shipped_out_date",
+        "status","package_information"
+      ];
+      ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (el.tagName === "SELECT") el.value = "";
+        else el.value = "";
+      });
+    }
+
+    function clearUpdateForm(){
+      document.getElementById("update_message").value = "";
+      document.getElementById("update_location").value = "";
+    }
+
+    function showMeta(pkg){
+      const box = document.getElementById("pkgMeta");
+      document.getElementById("m_id").textContent = pkg?.id ?? "—";
+      document.getElementById("m_tracker").textContent = pkg?.tracker_number ?? "—";
+      document.getElementById("m_created").textContent = pkg?.created_at ?? "—";
+      box.classList.add("show");
+    }
+
+    function hideMeta(){
+      document.getElementById("pkgMeta").classList.remove("show");
+      document.getElementById("m_id").textContent = "—";
+      document.getElementById("m_tracker").textContent = "—";
+      document.getElementById("m_created").textContent = "—";
+    }
+
+    function fillPackageForm(pkg){
+      document.getElementById("sender_name").value = pkg.sender_name || "";
+      document.getElementById("sender_address").value = pkg.sender_address || "";
+      document.getElementById("recipient_name").value = pkg.recipient_name || "";
+      document.getElementById("recipient_address").value = pkg.recipient_address || "";
+      document.getElementById("location").value = pkg.location || "";
+      document.getElementById("delivery_charge").value = pkg.delivery_charge || "";
+      document.getElementById("status").value = pkg.status || "";
+      document.getElementById("delivery_date").value = (pkg.delivery_date || "").slice(0,10);
+      document.getElementById("shipped_out_date").value = (pkg.shipped_out_date || "").slice(0,10);
+      document.getElementById("package_information").value = pkg.package_information || "";
+    }
+
+    // ---------- Updates render (view only) ----------
+    function escapeHtml(s){
+      return String(s || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function renderUpdates(updates){
+      const list = document.getElementById("updatesList");
+      list.innerHTML = "";
+
+      if (!updates || !updates.length){
+        const empty = document.createElement("div");
+        empty.className = "updItem";
+        empty.innerHTML = `<div class="updMsg" style="margin:0;">No updates yet. Add one above.</div>`;
+        list.appendChild(empty);
+        return;
+      }
+
+      updates.forEach(u => {
+        const item = document.createElement("div");
+        item.className = "updItem";
+
+        const top = document.createElement("div");
+        top.className = "updTop";
+
+        const left = document.createElement("div");
+        left.innerHTML = `<span class="badge">Update #${escapeHtml(u.id)}</span>`;
+
+        const right = document.createElement("div");
+        right.className = "updMeta";
+        right.innerHTML = `
+          <span><strong>Time:</strong> ${escapeHtml(u.created_at || "—")}</span>
+          <span><strong>Location:</strong> ${escapeHtml(u.location || "—")}</span>
+        `;
+
+        top.appendChild(left);
+        top.appendChild(right);
+
+        const msg = document.createElement("p");
+        msg.className = "updMsg";
+        msg.textContent = u.update_message || "";
+
+        item.appendChild(top);
+        item.appendChild(msg);
+
+        list.appendChild(item);
+      });
+    }
+
+    // ---------- Load packages list ----------
+    async function loadList(){
+      const token = tokenOrRedirect();
+      if (!token) return;
+
+      showNotice("", "");
+      const sel = document.getElementById("pkgSelect");
+      sel.innerHTML = `<option value="">Loading…</option>`;
+
+      try{
+        const res = await fetch(`${API_BASE}/api/packages/`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (!res.ok){
+          showNotice("error", data.message || data.error || "Failed to load packages.");
+          toast("error","Load failed", data.message || "Could not load packages list.");
+          sel.innerHTML = `<option value="">(failed to load)</option>`;
+          return;
+        }
+
+        sel.innerHTML = `<option value="">Select package…</option>`;
+        data.forEach(item => {
+          const opt = document.createElement("option");
+          opt.value = String(item.id);
+          opt.textContent = String(item.tracker_number);
+          sel.appendChild(opt);
+        });
+
+        showNotice("ok", "Packages loaded.");
+        toast("ok","Loaded", "Packages list loaded.");
+        setTimeout(() => showNotice("", ""), 900);
+      }catch(e){
+        showNotice("error", "Network error while loading packages.");
+        toast("error","Network error", "Could not load packages list.");
+        sel.innerHTML = `<option value="">(network error)</option>`;
+      }
+    }
+
+    // ---------- Load package by id ----------
+    async function loadPackageById(id){
+      const token = tokenOrRedirect();
+      if (!token) return;
+
+      try{
+        const res = await fetch(`${API_BASE}/api/packages/${id}`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (!res.ok){
+          showNotice("error", data.message || data.error || "Failed to fetch package.");
+          toast("error","Fetch failed", data.message || "Could not fetch package.");
+          return;
+        }
+
+        const pkg = data.package || {};
+        selectedId = pkg.id;
+        selectedTracker = pkg.tracker_number;
+
+        showMeta(pkg);
+        fillPackageForm(pkg);
+
+        showNotice("ok", "Package loaded. You can edit now.");
+        toast("ok","Package loaded", `Tracker ${selectedTracker} loaded.`);
+        setTimeout(() => showNotice("", ""), 1100);
+
+        await loadUpdates();
+      }catch(e){
+        showNotice("error", "Network error while fetching package.");
+        toast("error","Network error", "Could not fetch package.");
+      }
+    }
+
+    // ---------- Load updates (public in your router) ----------
+    async function loadUpdates(){
+      if (!selectedTracker){
+        renderUpdates([]);
+        return;
+      }
+      try{
+        const res = await fetch(`${API_BASE}/api/packages/package/${encodeURIComponent(selectedTracker)}/updates`);
+        const data = await res.json();
+
+        if (!res.ok){
+          toast("error","Updates", data.message || "Failed to load updates.");
+          renderUpdates([]);
+          return;
+        }
+
+        renderUpdates(data.updates || []);
+      }catch(e){
+        toast("error","Updates", "Network error while loading updates.");
+        renderUpdates([]);
+      }
+    }
+
+    // ---------- Add update ----------
+    async function addUpdate(message, location){
+      const token = tokenOrRedirect();
+      if (!token) return;
+
+      if (!selectedTracker){
+        showNotice("error","Please select a package first.");
+        toast("error","No package", "Select a package first.");
+        return;
+      }
+
+      setBusyAddUpdate(true);
+
+      try{
+        const res = await fetch(`${API_BASE}/api/packages/package/${encodeURIComponent(selectedTracker)}/update`, {
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            update_message: message,
+            location: location || null
+          })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok){
+          showNotice("error", data.message || data.error || "Failed to add update.");
+          toast("error","Add update failed", data.message || "Could not add update.");
+          return;
+        }
+
+        showNotice("ok", data.message || "Update added.");
+        toast("ok","Update added", "Tracking update saved.");
+        clearUpdateForm();
+        await loadUpdates();
+      }catch(e){
+        showNotice("error", "Network error while adding update.");
+        toast("error","Network error", "Could not add update.");
+      }finally{
+        setBusyAddUpdate(false);
+      }
+    }
+
+    // ---------- Package update (PUT) ----------
+    document.getElementById("editForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      showNotice("", "");
+
+      const token = tokenOrRedirect();
+      if (!token) return;
+
+      if (!selectedTracker){
+        showNotice("error", "Please select a package first.");
+        toast("error","No package", "Select a package first.");
+        return;
+      }
+
+      const body = {};
+      const pick = (id) => document.getElementById(id).value;
+
+      const sname = pick("sender_name").trim();
+      const saddr = pick("sender_address").trim();
+      const rname = pick("recipient_name").trim();
+      const raddr = pick("recipient_address").trim();
+      const loc = pick("location").trim();
+      const dch = pick("delivery_charge");
+      const ddate = pick("delivery_date");
+      const sod = pick("shipped_out_date");
+      const st = pick("status");
+      const info = document.getElementById("package_information").value.trim();
+
+      if (sname) body.sender_name = sname;
+      if (saddr) body.sender_address = saddr;
+      if (rname) body.recipient_name = rname;
+      if (raddr) body.recipient_address = raddr;
+      if (loc) body.location = loc;
+      if (dch) body.delivery_charge = dch;
+      if (ddate) body.delivery_date = ddate;
+      if (sod) body.shipped_out_date = sod;
+      if (st) body.status = st;
+      if (info) body.package_information = info;
+
+      if (Object.keys(body).length === 0){
+        showNotice("error", "No changes detected. Edit at least one field.");
+        toast("info","No changes", "Edit at least one field before saving.");
+        return;
+      }
+
+      setBusySave(true);
+
+      try{
+        const res = await fetch(`${API_BASE}/api/packages/package/${encodeURIComponent(selectedTracker)}`, {
+          method:"PUT",
+          headers:{
+            "Content-Type":"application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(body)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok){
+          showNotice("error", data.message || data.error || "Failed to update package.");
+          toast("error","Save failed", data.message || "Could not update package.");
+          return;
+        }
+
+        showNotice("ok", data.message || "Package updated successfully.");
+        toast("ok","Saved", "Package updated successfully.");
+
+        if (selectedId) await loadPackageById(selectedId);
+
+        setTimeout(() => showNotice("", ""), 1200);
+      }catch(err){
+        showNotice("error","Network error while updating package.");
+        toast("error","Network error", "Could not update package.");
+      }finally{
+        setBusySave(false);
+      }
+    });
+
+    // ---------- Delete package ----------
+    document.getElementById("deleteBtn").addEventListener("click", async () => {
+      showNotice("", "");
+
+      const token = tokenOrRedirect();
+      if (!token) return;
+
+      if (!selectedTracker){
+        showNotice("error", "Please select a package first.");
+        toast("error","No package", "Select a package first.");
+        return;
+      }
+
+      const ok = await window.AdminUI.confirmDelete(selectedTracker);
+      if (!ok) return;
+
+      try{
+        const res = await fetch(`${API_BASE}/api/packages/package/${encodeURIComponent(selectedTracker)}`, {
+          method:"DELETE",
+          headers:{ "Authorization": `Bearer ${token}` }
+        });
+
+        const data = await res.json();
+
+        if (!res.ok){
+          showNotice("error", data.message || data.error || "Failed to delete package.");
+          toast("error","Delete failed", data.message || "Could not delete package.");
+          return;
+        }
+
+        showNotice("ok", data.message || "Package deleted.");
+        toast("ok","Deleted", "Package deleted successfully.");
+
+        selectedId = null;
+        selectedTracker = null;
+        clearPackageForm();
+        hideMeta();
+        renderUpdates([]);
+        clearUpdateForm();
+
+        await loadList();
+
+        setTimeout(() => showNotice("", ""), 1200);
+      }catch(e){
+        showNotice("error","Network error while deleting package.");
+        toast("error","Network error", "Could not delete package.");
+      }
+    });
+
+    // ---------- Buttons ----------
+    document.getElementById("refreshBtn").addEventListener("click", loadList);
+    document.getElementById("reloadUpdatesBtn").addEventListener("click", loadUpdates);
+
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      clearPackageForm();
+      showNotice("", "");
+      toast("info","Cleared", "Form cleared.");
+    });
+    document.getElementById("clearBtnTop").addEventListener("click", () => {
+      clearPackageForm();
+      showNotice("", "");
+      toast("info","Cleared", "Form cleared.");
+    });
+
+    document.getElementById("clearUpdBtn").addEventListener("click", () => {
+      clearUpdateForm();
+      toast("info","Cleared", "Update form cleared.");
+    });
+
+    document.getElementById("pkgSelect").addEventListener("change", (e) => {
+      const id = e.target.value;
+      if (!id){
+        selectedId = null;
+        selectedTracker = null;
+        clearPackageForm();
+        hideMeta();
+        renderUpdates([]);
+        clearUpdateForm();
+        showNotice("", "");
+        return;
+      }
+      loadPackageById(id);
+    });
+
+    // ---------- Add Update submit ----------
+    document.getElementById("addUpdateForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      showNotice("", "");
+
+      if (!selectedTracker){
+        showNotice("error", "Please select a package first.");
+        toast("error","No package", "Select a package first.");
+        return;
+      }
+
+      const msg = document.getElementById("update_message").value.trim();
+      const loc = document.getElementById("update_location").value.trim();
+
+      if (!msg){
+        showNotice("error", "update_message is required.");
+        toast("error","Missing message", "Please type an update message.");
+        return;
+      }
+
+      await addUpdate(msg, loc);
+    });
+
+    // ---------- Guard + load list ----------
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!localStorage.getItem("token")) {
+        window.location.href = "index.html";
+        return;
+      }
+      loadList();
+      renderUpdates([]);
+    });
+  </script>
+</body>
+</html>

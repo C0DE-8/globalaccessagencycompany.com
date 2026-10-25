@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard | Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div id="preloader">
+    <div class="spinner"></div>
+  </div>
+
+  <header class="header">
+    <a href="dashboard.html" class="logo">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16.46 8.9L7.54 1.1A2 2 0 0 0 4 2.8v18.4a2 2 0 0 0 3.54 1.7l8.92-7.8a2 2 0 0 0 0-2.6Z"/>
+        <path d="M22 12H12"/>
+      </svg>
+      Admin
+    </a>
+
+    <div class="headerRight">
+      <div class="pill" id="adminPill">
+        Admin: <strong id="adminEmail">Loading…</strong> • Role: <strong id="adminRole">—</strong>
+      </div>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <h1 id="welcomeTitle">Welcome to the Shipper Dashboard</h1>
+    <p class="sub" id="welcomeSub">Loading your profile…</p>
+    <div class="notice" id="notice"></div>
+
+    <div class="nav-grid">
+      <a href="create-package.html" class="nav-link-card">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M8 12h8"/>
+          <path d="M12 8v8"/>
+        </svg>
+        Create Package
+      </a>
+
+      <a href="update-package.html" class="nav-link-card">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 3a2.85 2.85 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+          <path d="m15 5 4 4"/>
+        </svg>
+        Update Package
+      </a>
+
+      <a href="view-packages.html" class="nav-link-card">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m7.5 4.27 9 5.15"/>
+          <path d="m2.86 9.43 9 5.15"/>
+          <path d="M12 22V4L2.86 9.43v9.14L12 22Z"/>
+          <path d="M21.14 9.43v9.14L12 22V4l9.14 5.43Z"/>
+        </svg>
+        View All Packages
+      </a>
+
+      <a href="change-password.html" class="nav-link-card">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 17v1"/>
+          <path d="M6 10V8a6 6 0 0 1 12 0v2"/>
+          <rect x="5" y="10" width="14" height="12" rx="2"/>
+        </svg>
+        Change Password
+      </a>
+    </div>
+  </div>
+
+  <footer class="footer">
+    &copy; 2025 Admin. All rights reserved.
+  </footer>
+
+  <script>
+    const API_BASE = "https://api.veliport24.com";
+
+    // Preloader
+    window.addEventListener("load", () => {
+      const preloader = document.getElementById("preloader");
+      if (preloader) {
+        preloader.classList.add("hidden");
+        setTimeout(() => (preloader.style.display = "none"), 500);
+      }
+    });
+
+    // Logout
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("adminEmail");
+      localStorage.removeItem("adminRole");
+      window.location.href = "index.html";
+    });
+
+    function showNotice(type, text) {
+      const el = document.getElementById("notice");
+      el.className = "notice " + (type || "");
+      el.textContent = text || "";
+    }
+
+    function setHeaderProfile(email, role) {
+      document.getElementById("adminEmail").textContent = email || "Unknown";
+      document.getElementById("adminRole").textContent = role || "—";
+    }
+
+    async function loadProfile() {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        window.location.href = "index.html";
+        return;
+      }
+
+      // Instant cached render
+      const cachedEmail = localStorage.getItem("adminEmail");
+      const cachedRole = localStorage.getItem("adminRole");
+      if (cachedEmail || cachedRole) setHeaderProfile(cachedEmail || "…", cachedRole || "…");
+
+      try {
+        const res = await fetch(`${API_BASE}/api/auth/me`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          showNotice("error", data.message || "Session expired. Please login again.");
+          localStorage.removeItem("token");
+          setTimeout(() => (window.location.href = "index.html"), 900);
+          return;
+        }
+
+        const user = data.user || {};
+        const email = user.email || cachedEmail || "admin";
+        const role = user.role || cachedRole || "admin";
+
+        setHeaderProfile(email, role);
+        document.getElementById("welcomeSub").textContent = `Signed in as ${email} (${role})`;
+
+        localStorage.setItem("adminEmail", email);
+        localStorage.setItem("adminRole", role);
+
+        showNotice("ok", "Profile loaded successfully.");
+        setTimeout(() => showNotice("", ""), 1200);
+      } catch (e) {
+        showNotice("error", "Network error while loading profile.");
+        document.getElementById("welcomeSub").textContent = "Could not load profile (network issue).";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadProfile);
+  </script>
+</body>
+</html>

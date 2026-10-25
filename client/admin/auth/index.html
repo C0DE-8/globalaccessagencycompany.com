@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login | Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div class="card">
+    <div class="card-header">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+        <path d="M16.46 8.9L7.54 1.1A2 2 0 0 0 4 2.8v18.4a2 2 0 0 0 3.54 1.7l8.92-7.8a2 2 0 0 0 0-2.6Z"/>
+        <path d="M22 12H12"/>
+      </svg>
+      <h2 class="title">Admin</h2>
+      <p class="description">Admin login</p>
+    </div>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="email">Admin Email</label>
+        <input type="email" id="email" placeholder="admin@example.com" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Admin Password</label>
+        <input type="password" id="password" placeholder="********" required>
+      </div>
+
+      <button type="submit" class="btn" id="loginBtn">
+        <span class="spinner" id="spinner"></span>
+        Login
+      </button>
+
+      <div class="row-links">
+        <a href="reset-password.html">Reset Password</a>
+        <a href="change-password.html">Change Password</a>
+      </div>
+    </form>
+
+    <div class="message" id="message"></div>
+
+    <div class="card-footer">
+      Need to create an admin?
+      <a href="register.html">Register Admin</a>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "https://api.veliport24.com";
+
+    const loginForm = document.getElementById("loginForm");
+    const loginBtn = document.getElementById("loginBtn");
+    const spinner = document.getElementById("spinner");
+    const messageDiv = document.getElementById("message");
+
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      loginBtn.disabled = true;
+      spinner.style.display = "inline-block";
+      messageDiv.textContent = "";
+      messageDiv.className = "message";
+
+      try {
+        const res = await fetch(`${API_BASE}/api/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          messageDiv.textContent = data.message || "Login failed.";
+          messageDiv.classList.add("error");
+          return;
+        }
+
+        // ✅ NEW: token is at data.token (NOT data.user.token)
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("adminEmail", data.user?.email || email);
+        localStorage.setItem("adminRole", data.user?.role || "admin");
+
+        messageDiv.textContent = "Login successful! Redirecting...";
+        messageDiv.classList.add("success");
+
+        setTimeout(() => {
+          window.location.href = "dashboard.html";
+        }, 900);
+      } catch (err) {
+        messageDiv.textContent = "Network error. Please try again.";
+        messageDiv.classList.add("error");
+      } finally {
+        loginBtn.disabled = false;
+        spinner.style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>
