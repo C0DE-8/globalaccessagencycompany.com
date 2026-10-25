@@ -1,0 +1,207 @@
+- generic [ref=f1e2]:
+  - banner [ref=f1e3]:
+    - link "Global Access Agency Company home" [ref=f1e4] [cursor=pointer]:
+      - /url: /
+      - generic [ref=f1e5]:
+        - text: G
+        - generic [ref=f1e6]: A
+      - generic [ref=f1e7]:
+        - text: GLOBAL ACCESS
+        - generic [ref=f1e8]: AGENCY COMPANY
+    - button "Open navigation" [ref=f1e9]
+    - navigation:
+      - link "Home":
+        - /url: /
+      - link "About":
+        - /url: /about
+      - link "Services ⌄":
+        - /url: /services
+      - link "Contact":
+        - /url: /contact
+      - link "Track a shipment ↗":
+        - /url: /track
+  - main [ref=f1e12]:
+    - generic [ref=f1e13]:
+      - generic [ref=f1e14]:
+        - generic [ref=f1e15]: LOGISTICS WITHOUT THE GUESSWORK
+        - heading [level=1] [ref=f1e17]:
+          - text: Freight thatmoves
+          - emphasis [ref=f1e18]: you forward.
+        - paragraph [ref=f1e19]: One thoughtful logistics partner for every mile, port and possibility. We make global shipping feel a little more human.
+        - generic [ref=f1e20]:
+          - link "Plan a shipment ↗" [ref=f1e21] [cursor=pointer]:
+            - /url: /contact
+            - text: Plan a shipment
+            - generic [ref=f1e22]: ↗
+          - link "Explore our services →" [ref=f1e23] [cursor=pointer]:
+            - /url: /services
+        - generic [ref=f1e24]:
+          - generic [ref=f1e25]:
+            - generic [ref=f1e26]: G
+            - generic [ref=f1e27]: A
+            - generic [ref=f1e28]: +
+          - paragraph [ref=f1e29]:
+            - strong [ref=f1e30]: People-first logistics
+            - text: Built around your business
+          - paragraph [ref=f1e32]:
+            - strong [ref=f1e33]: One connected network
+            - text: Across land, air & sea
+      - generic [ref=f1e34]:
+        - generic [ref=f1e35]:
+          - img "Aerial view of a road connecting destinations" [ref=f1e36]
+          - generic [ref=f1e37]: MOVING THE WORLD FORWARD
+        - generic [ref=f1e39]:
+          - generic [ref=f1e40]: ↗
+          - generic [ref=f1e41]:
+            - generic [ref=f1e42]: BUILT FOR THE LONG WAY
+            - strong [ref=f1e43]: Anywhere to everywhere
+        - generic [ref=f1e44]:
+          - generic [ref=f1e45]: ✳
+          - generic [ref=f1e46]:
+            - strong [ref=f1e47]: Details, handled.
+            - generic [ref=f1e48]: So you can focus on what’s next.
+        - generic [ref=f1e49]: 01 / 04
+    - generic [ref=f1e51]:
+      - generic [ref=f1e52]: BUILT TO CONNECT
+      - paragraph [ref=f1e53]: Practical expertise. Personal service. A more connected supply chain.
+      - generic [ref=f1e54]:
+        - generic [ref=f1e55]: 01 AIR
+        - generic [ref=f1e56]: 02 OCEAN
+        - generic [ref=f1e57]: 03 LAND
+        - generic [ref=f1e58]: 04 STORAGE
+    - generic [ref=f1e59]:
+      - generic [ref=f1e60]: A BETTER WAY TO MOVE
+      - generic [ref=f1e61]:
+        - heading [level=2] [ref=f1e62]:
+          - text: Complex journeys.
+          - emphasis [ref=f1e63]: Clear next steps.
+        - generic [ref=f1e64]:
+          - paragraph [ref=f1e65]: Shipping shouldn’t leave you chasing updates or stitching together providers. We bring the moving parts into one considered plan, with people who stay close from first mile to final handoff.
+          - link "Meet your logistics partner →" [ref=f1e66] [cursor=pointer]:
+            - /url: /about
+    - generic [ref=f1e68]:
+      - generic [ref=f1e69]:
+        - generic [ref=f1e70]:
+          - generic [ref=f1e71]: HOW WE GET IT THERE
+          - heading [level=2] [ref=f1e72]:
+            - text: Right route.
+            - emphasis [ref=f1e73]: Right on time.
+        - link "All services →" [ref=f1e74] [cursor=pointer]:
+          - /url: /services
+      - generic [ref=f1e75]:
+        - link "Air freight 01 / AIR Air freight ↗ When timing matters, we find the right lift and keep your cargo moving." [ref=f1e76] [cursor=pointer]:
+          - /url: /services/air-freight
+          - img "Air freight" [ref=f1e77]
+          - generic [ref=f1e78]: 01 / AIR
+          - generic [ref=f1e79]:
+            - heading "Air freight" [level=3] [ref=f1e80]
+            - generic [ref=f1e81]: ↗
+            - paragraph [ref=f1e82]: When timing matters, we find the right lift and keep your cargo moving.
+        - link "Ocean freight 02 / OCEAN Ocean freight ↗ Dependable capacity and clear coordination, from port to port." [ref=f1e83] [cursor=pointer]:
+          - /url: /services/ocean-freight
+          - img "Ocean freight" [ref=f1e84]
+          - generic [ref=f1e85]: 02 / OCEAN
+          - generic [ref=f1e86]:
+            - heading "Ocean freight" [level=3] [ref=f1e87]
+            - generic [ref=f1e88]: ↗
+            - paragraph [ref=f1e89]: Dependable capacity and clear coordination, from port to port.
+        - link "Road transport 03 / ROAD Road transport ↗ Flexible ground transport that makes the first and final miles count." [ref=f1e90] [cursor=pointer]:
+          - /url: /services/road-transport
+          - img "Road transport" [ref=f1e91]
+          - generic [ref=f1e92]: 03 / ROAD
+          - generic [ref=f1e93]:
+            - heading "Road transport" [level=3] [ref=f1e94]
+            - generic [ref=f1e95]: ↗
+            - paragraph [ref=f1e96]: Flexible ground transport that makes the first and final miles count.
+        - link "Warehousing 05 / STORAGE Warehousing ↗ More room to adapt, with storage that fits your operation." [ref=f1e97] [cursor=pointer]:
+          - /url: /services/warehousing
+          - img "Warehousing" [ref=f1e98]
+          - generic [ref=f1e99]: 05 / STORAGE
+          - generic [ref=f1e100]:
+            - heading "Warehousing" [level=3] [ref=f1e101]
+            - generic [ref=f1e102]: ↗
+            - paragraph [ref=f1e103]: More room to adapt, with storage that fits your operation.
+      - generic [ref=f1e104]:
+        - generic [ref=f1e105]: Air · Ocean · Road · Rail · Warehousing · Multimodal
+        - link "Find your route →" [ref=f1e106] [cursor=pointer]:
+          - /url: /services
+    - generic [ref=f1e107]:
+      - generic [ref=f1e108]:
+        - img "Logistics team coordinating shipment details" [ref=f1e109]
+        - generic [ref=f1e110]:
+          - strong [ref=f1e111]: GAA
+          - generic [ref=f1e112]: HERE FORTHE WHOLE JOURNEY
+      - generic [ref=f1e114]:
+        - generic [ref=f1e115]: THE HUMAN SIDE OF LOGISTICS
+        - heading [level=2] [ref=f1e116]:
+          - text: We don’t just move cargo.
+          - emphasis [ref=f1e117]: We move things forward.
+        - paragraph [ref=f1e118]: Good logistics is the quiet confidence that someone has the details covered. Our team listens first, plans carefully and keeps communication open as your shipment travels.
+        - generic [ref=f1e119]:
+          - generic [ref=f1e120]:
+            - generic [ref=f1e121]: "01"
+            - paragraph [ref=f1e122]:
+              - strong [ref=f1e123]: A real person, on your side.
+              - text: Responsive support from people who know your shipment.
+          - generic [ref=f1e124]:
+            - generic [ref=f1e125]: "02"
+            - paragraph [ref=f1e126]:
+              - strong [ref=f1e127]: Plans built around you.
+              - text: Routes and service that fit your timing and goals.
+          - generic [ref=f1e128]:
+            - generic [ref=f1e129]: "03"
+            - paragraph [ref=f1e130]:
+              - strong [ref=f1e131]: Clarity at every handoff.
+              - text: Thoughtful coordination from origin through delivery.
+        - link "More about us ↗" [ref=f1e132] [cursor=pointer]:
+          - /url: /about
+          - text: More about us
+          - generic [ref=f1e133]: ↗
+    - generic [ref=f1e137]:
+      - generic [ref=f1e138]:
+        - generic [ref=f1e139]: YOUR SHIPMENT, IN VIEW
+        - heading [level=2] [ref=f1e140]:
+          - text: Know where it is.
+          - emphasis [ref=f1e141]: Know what’s next.
+        - paragraph [ref=f1e142]: Enter your tracking number for the latest shipment details.
+      - generic [ref=f1e143]:
+        - generic [ref=f1e144]: TRACKING NUMBER
+        - generic [ref=f1e145]:
+          - textbox "TRACKING NUMBER" [ref=f1e146]:
+            - /placeholder: e.g. AAE1-12-0000000001
+          - button "Track shipment" [ref=f1e147] [cursor=pointer]: →
+        - generic [ref=f1e148]: Have a shipment on the move? We’re here to help.
+    - generic [ref=f1e149]:
+      - generic [ref=f1e150]: READY WHEN YOU ARE
+      - heading [level=2] [ref=f1e151]:
+        - text: Let’s get your next
+        - emphasis [ref=f1e152]: shipment moving.
+      - link "Talk to our team ↗" [ref=f1e153] [cursor=pointer]:
+        - /url: /contact
+        - text: Talk to our team
+        - generic [ref=f1e154]: ↗
+      - generic [ref=f1e155]: G
+  - contentinfo [ref=f1e156]:
+    - generic [ref=f1e157]:
+      - link "Global Access Agency Company home" [ref=f1e158] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f1e159]:
+          - text: G
+          - generic [ref=f1e160]: A
+        - generic [ref=f1e161]:
+          - text: GLOBAL ACCESS
+          - generic [ref=f1e162]: AGENCY COMPANY
+      - paragraph [ref=f1e163]: Thoughtful logistics. Stronger connections.
+      - link "Start a conversation ↗" [ref=f1e164] [cursor=pointer]:
+        - /url: /contact
+    - generic [ref=f1e165]:
+      - generic [ref=f1e166]: © 2026 Global Access Agency Company
+      - generic [ref=f1e167]:
+        - link "Services" [ref=f1e168] [cursor=pointer]:
+          - /url: /services
+        - link "Track" [ref=f1e169] [cursor=pointer]:
+          - /url: /track
+        - link "Contact" [ref=f1e170] [cursor=pointer]:
+          - /url: /contact
+      - link "BACK TO TOP ↑" [ref=f1e171] [cursor=pointer]:
+        - /url: "#top"

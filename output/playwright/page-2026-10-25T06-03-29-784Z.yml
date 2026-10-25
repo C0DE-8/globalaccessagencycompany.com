@@ -1,0 +1,77 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - link "Global Access Agency Company home" [ref=e4] [cursor=pointer]:
+      - /url: /
+      - generic [ref=e5]:
+        - text: G
+        - generic [ref=e6]: A
+      - generic [ref=e7]:
+        - text: GLOBAL ACCESS
+        - generic [ref=e8]: AGENCY COMPANY
+    - navigation [ref=e9]:
+      - link "Home" [ref=e10] [cursor=pointer]:
+        - /url: /
+      - link "About" [active] [ref=e11] [cursor=pointer]:
+        - /url: /about
+      - link "Services ⌄" [ref=e12] [cursor=pointer]:
+        - /url: /services
+      - link "Contact" [ref=e13] [cursor=pointer]:
+        - /url: /contact
+      - link "Track a shipment ↗" [ref=e14] [cursor=pointer]:
+        - /url: /track
+  - main [ref=e176]:
+    - generic [ref=e178]:
+      - generic [ref=e179]:
+        - link "Home" [ref=e180] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e181]: / About
+      - generic [ref=e182]: A PARTNER THAT STAYS CLOSE
+      - heading [level=1] [ref=e183]:
+        - text: Global reach.
+        - emphasis [ref=e184]: Personal approach.
+      - paragraph [ref=e185]: We bring people, planning and freight services together to make the complicated parts of shipping easier to navigate.
+    - generic [ref=e186]:
+      - generic [ref=e187]:
+        - generic [ref=e188]: WHY WE’RE HERE
+        - heading "Logistics with people at the center." [level=2] [ref=e189]
+        - paragraph [ref=e190]: Global Access Agency Company is a shipping and logistics partner focused on practical service and clear communication. From a time-sensitive air shipment to a carefully coordinated ocean move, our role is to understand what matters to your business and help make the next step clear.
+        - paragraph [ref=e191]: We bring the details together across air, ocean, road, rail and warehousing, with a team that values reliability, responsiveness and lasting relationships.
+        - link "Talk with our team ↗" [ref=e192] [cursor=pointer]:
+          - /url: /contact
+          - text: Talk with our team
+          - generic [ref=e193]: ↗
+      - img "Global logistics and freight operations" [ref=e194]
+    - generic [ref=e196]:
+      - generic [ref=e197]:
+        - generic [ref=e198]: BUILT AROUND YOUR BUSINESS
+        - heading [level=2] [ref=e199]:
+          - text: A clearer route
+          - emphasis [ref=e200]: starts with a conversation.
+      - link "Ask our team ↗" [ref=e201] [cursor=pointer]:
+        - /url: /contact
+        - text: Ask our team
+        - generic [ref=e202]: ↗
+  - contentinfo [ref=e160]:
+    - generic [ref=e161]:
+      - link "Global Access Agency Company home" [ref=e162] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e163]:
+          - text: G
+          - generic [ref=e164]: A
+        - generic [ref=e165]:
+          - text: GLOBAL ACCESS
+          - generic [ref=e166]: AGENCY COMPANY
+      - paragraph [ref=e167]: Thoughtful logistics. Stronger connections.
+      - link "Start a conversation ↗" [ref=e168] [cursor=pointer]:
+        - /url: /contact
+    - generic [ref=e169]:
+      - generic [ref=e170]: © 2026 Global Access Agency Company
+      - generic [ref=e171]:
+        - link "Services" [ref=e172] [cursor=pointer]:
+          - /url: /services
+        - link "Track" [ref=e173] [cursor=pointer]:
+          - /url: /track
+        - link "Contact" [ref=e174] [cursor=pointer]:
+          - /url: /contact
+      - link "BACK TO TOP ↑" [ref=e175] [cursor=pointer]:
+        - /url: "#top"

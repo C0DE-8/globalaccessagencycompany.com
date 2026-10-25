@@ -1,0 +1,79 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - link "Global Access Agency Company home" [ref=e4] [cursor=pointer]:
+      - /url: /
+      - generic [ref=e5]:
+        - text: G
+        - generic [ref=e6]: A
+      - generic [ref=e7]:
+        - text: GLOBAL ACCESS
+        - generic [ref=e8]: AGENCY COMPANY
+    - navigation [ref=e9]:
+      - link "Home" [ref=e10] [cursor=pointer]:
+        - /url: /
+      - link "About" [ref=e11] [cursor=pointer]:
+        - /url: /about
+      - link "Services ⌄" [ref=e12] [cursor=pointer]:
+        - /url: /services
+      - link "Contact" [ref=e13] [cursor=pointer]:
+        - /url: /contact
+      - link "Track a shipment ↗" [ref=e14] [cursor=pointer]:
+        - /url: /track
+  - main [ref=e15]:
+    - generic [ref=e17]:
+      - generic [ref=e18]:
+        - link "Home" [ref=e19] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e20]: / Services
+        - generic [ref=e21]: / Air freight
+      - generic [ref=e22]: 01 / AIR FREIGHT
+      - heading "When every hour has somewhere to be." [level=1] [ref=e23]
+      - paragraph [ref=e24]: Responsive air cargo coordination for shipments that need a faster connection across borders.
+    - generic [ref=e25]:
+      - generic [ref=e26]:
+        - generic [ref=e27]: A CLEARER ROUTE
+        - heading "Air freight that fits the journey." [level=2] [ref=e28]
+        - paragraph [ref=e29]: Our team helps you consider air freight options around your shipment’s timing, handling requirements and destination. We coordinate the moving pieces and keep communication clear as cargo travels.
+        - list [ref=e30]:
+          - listitem [ref=e31]: Time-sensitive international freight
+          - listitem [ref=e32]: Thoughtful route and service planning
+          - listitem [ref=e33]: Coordination from collection through handoff
+        - link "Discuss air freight ↗" [ref=e34] [cursor=pointer]:
+          - /url: /contact
+          - text: Discuss air freight
+          - generic [ref=e35]: ↗
+      - img "Air freight" [ref=e36]
+    - generic [ref=e38]:
+      - generic [ref=e39]:
+        - generic [ref=e40]: LET’S PLAN THE NEXT MOVE
+        - heading [level=2] [ref=e41]:
+          - text: The right route
+          - emphasis [ref=e42]: starts here.
+      - link "Ask our team ↗" [ref=e43] [cursor=pointer]:
+        - /url: /contact
+        - text: Ask our team
+        - generic [ref=e44]: ↗
+  - contentinfo [ref=e45]:
+    - generic [ref=e46]:
+      - link "Global Access Agency Company home" [ref=e47] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e48]:
+          - text: G
+          - generic [ref=e49]: A
+        - generic [ref=e50]:
+          - text: GLOBAL ACCESS
+          - generic [ref=e51]: AGENCY COMPANY
+      - paragraph [ref=e52]: Thoughtful logistics. Stronger connections.
+      - link "Start a conversation ↗" [ref=e53] [cursor=pointer]:
+        - /url: /contact
+    - generic [ref=e54]:
+      - generic [ref=e55]: © 2026 Global Access Agency Company
+      - generic [ref=e56]:
+        - link "Services" [ref=e57] [cursor=pointer]:
+          - /url: /services
+        - link "Track" [ref=e58] [cursor=pointer]:
+          - /url: /track
+        - link "Contact" [ref=e59] [cursor=pointer]:
+          - /url: /contact
+      - link "BACK TO TOP ↑" [ref=e60] [cursor=pointer]:
+        - /url: "#top"
