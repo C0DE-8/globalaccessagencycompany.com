@@ -20,7 +20,7 @@ export function Header({ route, onNavigate }) {
 }
 
 export function Footer({ onNavigate }) {
-  return <footer className="site-footer"><div className="section-shell footer-top"><Brand onNavigate={onNavigate} footer/><p>Thoughtful logistics. Stronger connections.</p><AppLink onNavigate={onNavigate} to="/contact">Start a conversation <span>↗</span></AppLink></div><div className="section-shell footer-bottom"><span>© {new Date().getFullYear()} Global Access Agency Company</span><div><AppLink onNavigate={onNavigate} to="/services">Services</AppLink><AppLink onNavigate={onNavigate} to="/track">Track</AppLink><AppLink onNavigate={onNavigate} to="/contact">Contact</AppLink></div><a href="#top" className="back-top">BACK TO TOP ↑</a></div></footer>
+  return <footer className="site-footer"><div className="section-shell footer-top"><Brand onNavigate={onNavigate} footer/><p>Thoughtful logistics. Stronger connections.</p><AppLink onNavigate={onNavigate} to="/contact">Start a conversation <span>↗</span></AppLink></div><div className="section-shell footer-bottom"><span>© {new Date().getFullYear()} Global Access Agency Company</span><div><AppLink onNavigate={onNavigate} to="/services">Services</AppLink><AppLink onNavigate={onNavigate} to="/track">Track</AppLink><AppLink onNavigate={onNavigate} to="/contact">Contact</AppLink><AppLink onNavigate={onNavigate} to="/gaa-control-7f3c9a/login">Admin access</AppLink></div><a href="#top" className="back-top">BACK TO TOP ↑</a></div></footer>
 }
 
 export function ButtonLink({ to, onNavigate, children, outline = false }) {

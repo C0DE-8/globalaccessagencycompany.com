@@ -13,7 +13,17 @@ import RoadTransport from './pages/road-transport/RoadTransport'
 import RailFreight from './pages/rail-freight/RailFreight'
 import Warehousing from './pages/warehousing/Warehousing'
 import Multimodal from './pages/multimodal/Multimodal'
+import AdminLogin from './pages/gaa-control-7f3c9a/login/Login'
+import AdminRegister from './pages/gaa-control-7f3c9a/register/Register'
+import AdminResetPassword from './pages/gaa-control-7f3c9a/reset-password/ResetPassword'
+import AdminDashboard from './pages/gaa-control-7f3c9a/dashboard/Dashboard'
+import AdminPackages from './pages/gaa-control-7f3c9a/packages/Packages'
+import AdminCreatePackage from './pages/gaa-control-7f3c9a/create-package/CreatePackage'
+import AdminUpdatePackage from './pages/gaa-control-7f3c9a/update-package/UpdatePackage'
+import AdminChangePassword from './pages/gaa-control-7f3c9a/change-password/ChangePassword'
+import { AdminGate } from './components/gaa-control-7f3c9a/AdminLayout'
 import './site.css'
+import './gaa-control-7f3c9a.css'
 
 const routes = {
   '/': { key: 'home', title: 'Global Access Agency Company — Freight, made clear.', Page: Home },
@@ -28,6 +38,14 @@ const routes = {
   '/services/rail-freight': { key: 'service', title: 'Rail Freight — Global Access Agency Company', Page: RailFreight },
   '/services/warehousing': { key: 'service', title: 'Warehousing — Global Access Agency Company', Page: Warehousing },
   '/services/multimodal': { key: 'service', title: 'Multimodal — Global Access Agency Company', Page: Multimodal },
+  '/gaa-control-7f3c9a/login': { key:'admin-login', title:'Admin sign in — Global Access Agency Company', Page:AdminLogin },
+  '/gaa-control-7f3c9a/register': { key:'admin-register', title:'Create admin account — Global Access Agency Company', Page:AdminRegister },
+  '/gaa-control-7f3c9a/reset-password': { key:'admin-reset', title:'Reset password — Global Access Agency Company', Page:AdminResetPassword },
+  '/gaa-control-7f3c9a': { key:'admin-dashboard', title:'Admin dashboard — Global Access Agency Company', Page:AdminDashboard, protected:true },
+  '/gaa-control-7f3c9a/packages': { key:'admin-packages', title:'Packages — Admin', Page:AdminPackages, protected:true },
+  '/gaa-control-7f3c9a/packages/new': { key:'admin-create', title:'Create package — Admin', Page:AdminCreatePackage, protected:true },
+  '/gaa-control-7f3c9a/packages/update': { key:'admin-update', title:'Update shipment — Admin', Page:AdminUpdatePackage, protected:true },
+  '/gaa-control-7f3c9a/change-password': { key:'admin-password', title:'Change password — Admin', Page:AdminChangePassword, protected:true },
 }
 
 function resolveRoute(path) {
@@ -41,6 +59,7 @@ export default function App() {
   const url = new URL(location, window.location.origin)
   const route = resolveRoute(url.pathname)
   const Page = route.Page
+  const isAdmin = route.key.startsWith('admin-')
 
   function navigate(to) {
     const next = new URL(to, window.location.origin)
@@ -83,5 +102,6 @@ export default function App() {
     return () => observer.disconnect()
   }, [location])
 
-  return <><div className={`page-wash ${transitioning ? 'exit' : ''}`} aria-hidden="true"/><Header route={{ page: route.key }} onNavigate={navigate}/><main key={location} className={transitioning ? 'route-content leaving' : 'route-content'}><Page onNavigate={navigate} initialNumber={url.searchParams.get('number')}/></main>{route.key !== '404' && <Footer onNavigate={navigate}/>}</>
+  const page = <Page onNavigate={navigate} initialNumber={url.searchParams.get('number')}/>
+  return <><div className={`page-wash ${transitioning ? 'exit' : ''}`} aria-hidden="true"/>{!isAdmin && <Header route={{ page: route.key }} onNavigate={navigate}/>}<div key={location} className={transitioning ? 'route-content leaving' : 'route-content'}>{route.protected ? <AdminGate pathname={url.pathname} onNavigate={navigate}>{page}</AdminGate> : page}</div>{!isAdmin && route.key !== '404' && <Footer onNavigate={navigate}/>}</>
 }
